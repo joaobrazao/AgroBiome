@@ -1,0 +1,30 @@
+# --- Artefactos Python ---
+__pycache__/
+*.pyc
+
+# --- Logs e temporários ---
+*.log
+.DS_Store
+Thumbs.db
+
+# --- Definições locais do Claude Code (pessoais) ---
+.claude/settings.local.json
+CLAUDE.md
+
+# --- BD de traços metaTraits (~105 MB) ---
+# Fora do git (excede limites do GitHub). Obter conforme descrito no README.
+/data/raw/ncbi_genus_summary.jsonl
+
+# --- Saídas geradas pelo pipeline (regeneráveis) ---
+# Ignorar o conteúdo mas manter as pastas (.gitkeep) para o pipeline correr.
+/data/derived/*
+!/data/derived/.gitkeep
+!/data/derived/per_sample/
+/data/derived/per_sample/*
+!/data/derived/per_sample/.gitkeep
+
+# --- Histórico / artefactos antigos (não versionar) ---
+/archive/
+
+# samples
+/data/raw/samples

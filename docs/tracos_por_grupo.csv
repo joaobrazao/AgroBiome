@@ -1,0 +1,371 @@
+trait,type,group_id,group_name
+enzyme activity: nitrogenase,discreto,1a,Azoto - Fixacao
+enzyme activity: nitrogenase (EC1.18.6.1),discreto,1a,Azoto - Fixacao
+nitrogen fixation,discreto,1a,Azoto - Fixacao
+nitrogen source: dinitrogen,discreto,1a,Azoto - Fixacao
+produces: dinitrogen,discreto,1a,Azoto - Fixacao
+denitrification pathway,discreto,1b,Azoto - Nitrificacao
+denitrification: nitrate,discreto,1b,Azoto - Nitrificacao
+denitrification: nitrite,discreto,1b,Azoto - Nitrificacao
+denitrification: nitrous oxide,discreto,1b,Azoto - Nitrificacao
+nitrification,discreto,1b,Azoto - Nitrificacao
+oxidation: ammonia,discreto,1b,Azoto - Nitrificacao
+builds gas from: nitrate,discreto,1c,Azoto - Desnitrificacao/reducao
+builds gas from: nitrite,discreto,1c,Azoto - Desnitrificacao/reducao
+enzyme activity: nitrate reductase (EC1.7.99.4),discreto,1c,Azoto - Desnitrificacao/reducao
+produces: dinitrogen oxide,discreto,1c,Azoto - Desnitrificacao/reducao
+reduction: nitrate,discreto,1c,Azoto - Desnitrificacao/reducao
+reduction: nitrite,discreto,1c,Azoto - Desnitrificacao/reducao
+respiration: nitrate,discreto,1c,Azoto - Desnitrificacao/reducao
+respiration: nitrogen,discreto,1c,Azoto - Desnitrificacao/reducao
+ammonification: nitrate,discreto,1d,Azoto - Amonificacao/mineralizacao
+ammonification: nitrite,discreto,1d,Azoto - Amonificacao/mineralizacao
+enzyme activity: urease (EC3.5.1.5),discreto,1d,Azoto - Amonificacao/mineralizacao
+hydrolysis: urea,discreto,1d,Azoto - Amonificacao/mineralizacao
+nitrogen source: ammonia,discreto,1d,Azoto - Amonificacao/mineralizacao
+nitrogen source: ammonium,discreto,1d,Azoto - Amonificacao/mineralizacao
+nitrogen source: ammonium chloride,discreto,1d,Azoto - Amonificacao/mineralizacao
+nitrogen source: ammonium nitrate,discreto,1d,Azoto - Amonificacao/mineralizacao
+nitrogen source: ammonium sulfate,discreto,1d,Azoto - Amonificacao/mineralizacao
+nitrogen source: nitrate,discreto,1d,Azoto - Amonificacao/mineralizacao
+nitrogen source: nitrite,discreto,1d,Azoto - Amonificacao/mineralizacao
+nitrogen source: urea,discreto,1d,Azoto - Amonificacao/mineralizacao
+produces: ammonia,discreto,1d,Azoto - Amonificacao/mineralizacao
+produces: ammonium,discreto,1d,Azoto - Amonificacao/mineralizacao
+produces: nitrate,discreto,1d,Azoto - Amonificacao/mineralizacao
+produces: nitrite,discreto,1d,Azoto - Amonificacao/mineralizacao
+aerotolerant,discreto,2,Arejamento/Oxigenio
+facultative anaerobe,discreto,2,Arejamento/Oxigenio
+obligate aerobic,discreto,2,Arejamento/Oxigenio
+obligate anaerobic,discreto,2,Arejamento/Oxigenio
+oxygen preference,discreto,2,Arejamento/Oxigenio
+assimilation: agar,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: alpha-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: amylose,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: arabinogalactan,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: carboxymethylcellulose,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: chitin,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: chitosan,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: crystalline cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: dextrin,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: gamma-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: glycogen,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: mannan,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: agar,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: alginate,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: alpha-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: amylopectin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: amylose,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: beta-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: carboxymethylcellulose,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: chitin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: chitosan,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: dextran,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: dextrin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: fucoidan,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: gamma-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: gellan gum,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: glucomannan,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: glycogen,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: inulin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: laminarin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: pectin,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: pullulan,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: starch,discreto,3a,Decomposicao - Fibra/polimeros
+carbon source: xylan,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: agar,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: agarose,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: alginate,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: amylose,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: arabinogalactan,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: carboxymethylcellulose,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: carrageenan,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: chitin,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: chitosan,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: crystalline cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: glucomannan,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: glycogen,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: hydroxyethylcellulose,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: inulin,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: laminarin,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: lignin,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: starch,discreto,3a,Decomposicao - Fibra/polimeros
+degradation: xylan,discreto,3a,Decomposicao - Fibra/polimeros
+energy source: agarose,discreto,3a,Decomposicao - Fibra/polimeros
+energy source: amylopectin,discreto,3a,Decomposicao - Fibra/polimeros
+energy source: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+energy source: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+energy source: cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+energy source: dextran,discreto,3a,Decomposicao - Fibra/polimeros
+energy source: glycogen,discreto,3a,Decomposicao - Fibra/polimeros
+enzyme activity: agarase (EC3.2.1.81),discreto,3a,Decomposicao - Fibra/polimeros
+enzyme activity: alginase (EC3.2.1.16),discreto,3a,Decomposicao - Fibra/polimeros
+enzyme activity: cellulase (EC3.2.1.4),discreto,3a,Decomposicao - Fibra/polimeros
+enzyme activity: chitinase (EC3.2.1.14),discreto,3a,Decomposicao - Fibra/polimeros
+"enzyme activity: endo-1,4-beta-xylanase (EC3.2.1.8)",discreto,3a,Decomposicao - Fibra/polimeros
+enzyme activity: pectinase,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: agarose,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: alginate,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: arabinogalactan,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: carboxymethylcellulose,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: chitin,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: dextrin,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: glycogen,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: inulin,discreto,3a,Decomposicao - Fibra/polimeros
+fermentation: inuline,discreto,3a,Decomposicao - Fibra/polimeros
+growth: MacConkey agar,discreto,3a,Decomposicao - Fibra/polimeros
+growth: agar,discreto,3a,Decomposicao - Fibra/polimeros
+growth: agarose,discreto,3a,Decomposicao - Fibra/polimeros
+growth: alginate,discreto,3a,Decomposicao - Fibra/polimeros
+growth: alpha-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+growth: amylopectin,discreto,3a,Decomposicao - Fibra/polimeros
+growth: amylose,discreto,3a,Decomposicao - Fibra/polimeros
+growth: arabinan,discreto,3a,Decomposicao - Fibra/polimeros
+growth: arabinogalactan,discreto,3a,Decomposicao - Fibra/polimeros
+growth: arabinoxylan,discreto,3a,Decomposicao - Fibra/polimeros
+growth: blood agar,discreto,3a,Decomposicao - Fibra/polimeros
+growth: carboxymethylcellulose,discreto,3a,Decomposicao - Fibra/polimeros
+growth: carrageenan,discreto,3a,Decomposicao - Fibra/polimeros
+growth: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+growth: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+growth: chitin,discreto,3a,Decomposicao - Fibra/polimeros
+growth: chitosan,discreto,3a,Decomposicao - Fibra/polimeros
+growth: dextran,discreto,3a,Decomposicao - Fibra/polimeros
+growth: dextrin,discreto,3a,Decomposicao - Fibra/polimeros
+growth: gellan gum,discreto,3a,Decomposicao - Fibra/polimeros
+growth: glycogen,discreto,3a,Decomposicao - Fibra/polimeros
+growth: inulin,discreto,3a,Decomposicao - Fibra/polimeros
+growth: pectin,discreto,3a,Decomposicao - Fibra/polimeros
+growth: starch,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: agar,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: alginate,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: alpha-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: arabinogalactan,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: carboxymethylcellulose,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: carrageenan,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: cationic chitosan,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: chitin,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: chitosan,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: crab shell chitin,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: crystalline cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: dextrin,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: fucoidan,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: gamma-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: hydroxyethylcellulose,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: sodium alginate,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: starch,discreto,3a,Decomposicao - Fibra/polimeros
+hydrolysis: xylan,discreto,3a,Decomposicao - Fibra/polimeros
+oxidation: alpha-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+oxidation: beta-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+oxidation: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+oxidation: dextrin,discreto,3a,Decomposicao - Fibra/polimeros
+produces: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+respiration: alpha-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+respiration: beta-cyclodextrin,discreto,3a,Decomposicao - Fibra/polimeros
+respiration: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+respiration: dextrin,discreto,3a,Decomposicao - Fibra/polimeros
+respiration: glycogen,discreto,3a,Decomposicao - Fibra/polimeros
+utilizes: cellobiose,discreto,3a,Decomposicao - Fibra/polimeros
+utilizes: cellulose,discreto,3a,Decomposicao - Fibra/polimeros
+assimilation: casein,discreto,3b,Decomposicao - Proteinas
+assimilation: casein hydrolysate,discreto,3b,Decomposicao - Proteinas
+assimilation: collagen,discreto,3b,Decomposicao - Proteinas
+assimilation: gelatin,discreto,3b,Decomposicao - Proteinas
+carbon source: casein,discreto,3b,Decomposicao - Proteinas
+carbon source: casein hydrolysate,discreto,3b,Decomposicao - Proteinas
+carbon source: gelatin,discreto,3b,Decomposicao - Proteinas
+degradation: casein,discreto,3b,Decomposicao - Proteinas
+degradation: collagen,discreto,3b,Decomposicao - Proteinas
+degradation: dna,discreto,3b,Decomposicao - Proteinas
+degradation: elastin,discreto,3b,Decomposicao - Proteinas
+degradation: fibrin,discreto,3b,Decomposicao - Proteinas
+degradation: gelatin,discreto,3b,Decomposicao - Proteinas
+degradation: milk,discreto,3b,Decomposicao - Proteinas
+degradation: skimmed milk,discreto,3b,Decomposicao - Proteinas
+energy source: casein hydrolysate,discreto,3b,Decomposicao - Proteinas
+enzyme activity: caseinase (EC3.4.21.50),discreto,3b,Decomposicao - Proteinas
+enzyme activity: gelatinase,discreto,3b,Decomposicao - Proteinas
+enzyme activity: skimmed milk protease,discreto,3b,Decomposicao - Proteinas
+fermentation: casein hydrolysate,discreto,3b,Decomposicao - Proteinas
+fermentation: gelatin,discreto,3b,Decomposicao - Proteinas
+growth: casein,discreto,3b,Decomposicao - Proteinas
+growth: casein hydrolysate,discreto,3b,Decomposicao - Proteinas
+hydrolysis: casein,discreto,3b,Decomposicao - Proteinas
+hydrolysis: casein hydrolysate,discreto,3b,Decomposicao - Proteinas
+hydrolysis: collagen,discreto,3b,Decomposicao - Proteinas
+hydrolysis: dna,discreto,3b,Decomposicao - Proteinas
+hydrolysis: gelatin,discreto,3b,Decomposicao - Proteinas
+hydrolysis: lecithin,discreto,3b,Decomposicao - Proteinas
+hydrolysis: milk,discreto,3b,Decomposicao - Proteinas
+hydrolysis: skimmed milk,discreto,3b,Decomposicao - Proteinas
+oxidation: casein,discreto,3b,Decomposicao - Proteinas
+respiration: gelatin,discreto,3b,Decomposicao - Proteinas
+utilizes: casein,discreto,3b,Decomposicao - Proteinas
+utilizes: gelatin,discreto,3b,Decomposicao - Proteinas
+assimilation: benzene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+assimilation: catechol,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+carbon source: 1-methylphenanthrene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+carbon source: anthracene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+carbon source: benzene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+carbon source: catechol,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+carbon source: fluorene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+carbon source: phenanthrene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+carbon source: pyrene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+carbon source: tetraphene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+degradation: aromatic compound,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+degradation: aromatic hydrocarbon,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+degradation: benzene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+degradation: benzoate,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+degradation: hydrocarbon,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+degradation: phenol,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+degradation: plastic,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+growth: benzene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+growth: ethylbenzene,discreto,3c,Decomposicao - Xenobioticos/recalcitrantes
+enzyme activity: alpha-Amylase (EC3.2.1.1),discreto,3d,Decomposicao - Geral
+enzyme activity: amylase,discreto,3d,Decomposicao - Geral
+"enzyme activity: endo-1,3(4)-beta-glucanase (EC3.2.1.6)",discreto,3d,Decomposicao - Geral
+enzyme activity: esterase,discreto,3d,Decomposicao - Geral
+enzyme activity: esterase (C 4),discreto,3d,Decomposicao - Geral
+enzyme activity: esterase Lipase (C 8),discreto,3d,Decomposicao - Geral
+enzyme activity: esterase lipase (C 8),discreto,3d,Decomposicao - Geral
+enzyme activity: lipase,discreto,3d,Decomposicao - Geral
+enzyme activity: lipase (C 14),discreto,3d,Decomposicao - Geral
+enzyme activity: lipase (Tween 80),discreto,3d,Decomposicao - Geral
+enzyme activity: protease,discreto,3d,Decomposicao - Geral
+enzyme activity: tween esterase,discreto,3d,Decomposicao - Geral
+enzyme activity: tyrosinase,discreto,3d,Decomposicao - Geral
+fermentation,discreto,3d,Decomposicao - Geral
+growth: chemoheterotrophy,discreto,3d,Decomposicao - Geral
+hydrolysis: nitrate,discreto,3d,Decomposicao - Geral
+hydrolysis: tween 20,discreto,3d,Decomposicao - Geral
+hydrolysis: tween 40,discreto,3d,Decomposicao - Geral
+hydrolysis: tween 60,discreto,3d,Decomposicao - Geral
+hydrolysis: tween 80,discreto,3d,Decomposicao - Geral
+electron acceptor: elemental sulfur,discreto,4,Enxofre/anoxia
+electron acceptor: sulfate,discreto,4,Enxofre/anoxia
+electron acceptor: sulfite,discreto,4,Enxofre/anoxia
+electron acceptor: sulfur compounds,discreto,4,Enxofre/anoxia
+electron acceptor: tetrathionate,discreto,4,Enxofre/anoxia
+electron acceptor: thiosulfate,discreto,4,Enxofre/anoxia
+electron donor: elemental sulfur,discreto,4,Enxofre/anoxia
+electron donor: hydrogen sulfide,discreto,4,Enxofre/anoxia
+electron donor: sulfide,discreto,4,Enxofre/anoxia
+hydrolysis: chondroitin sulfate,discreto,4,Enxofre/anoxia
+oxidation in darkness: sulfide,discreto,4,Enxofre/anoxia
+oxidation in darkness: sulfur compounds,discreto,4,Enxofre/anoxia
+oxidation: elemental sulfur,discreto,4,Enxofre/anoxia
+oxidation: sulfide,discreto,4,Enxofre/anoxia
+oxidation: thiosulfate,discreto,4,Enxofre/anoxia
+produces: hydrogen sulfide,discreto,4,Enxofre/anoxia
+reduction: elemental sulfur,discreto,4,Enxofre/anoxia
+reduction: sulfate,discreto,4,Enxofre/anoxia
+reduction: sulfite,discreto,4,Enxofre/anoxia
+reduction: thiosulfate,discreto,4,Enxofre/anoxia
+sulfur source: cysteine,discreto,4,Enxofre/anoxia
+sulfur source: elemental sulfur,discreto,4,Enxofre/anoxia
+carbon source: methane,discreto,5,Metilotrofia/metanotrofia
+carbon source: methanol,discreto,5,Metilotrofia/metanotrofia
+carbon source: methylamine,discreto,5,Metilotrofia/metanotrofia
+energy source: methane,discreto,5,Metilotrofia/metanotrofia
+energy source: methanol,discreto,5,Metilotrofia/metanotrofia
+enzyme activity: methanol dehydrogenase (EC1.1.1.244),discreto,5,Metilotrofia/metanotrofia
+oxidation: methane,discreto,5,Metilotrofia/metanotrofia
+oxidation: methanol,discreto,5,Metilotrofia/metanotrofia
+produces: methane,discreto,5,Metilotrofia/metanotrofia
+produces: methane from acetate,discreto,5,Metilotrofia/metanotrofia
+produces: methane from formate,discreto,5,Metilotrofia/metanotrofia
+electron acceptor: fe(iii) citrate,discreto,6,Ferro/Manganes (redox)
+electron acceptor: ferric citrate,discreto,6,Ferro/Manganes (redox)
+electron acceptor: ferric iron,discreto,6,Ferro/Manganes (redox)
+electron acceptor: ferric oxide,discreto,6,Ferro/Manganes (redox)
+electron acceptor: ferrihydrite,discreto,6,Ferro/Manganes (redox)
+electron acceptor: iron,discreto,6,Ferro/Manganes (redox)
+electron acceptor: manganese,discreto,6,Ferro/Manganes (redox)
+electron acceptor: manganese dioxide,discreto,6,Ferro/Manganes (redox)
+electron donor: ferric iron,discreto,6,Ferro/Manganes (redox)
+electron donor: ferrous ion,discreto,6,Ferro/Manganes (redox)
+electron donor: iron,discreto,6,Ferro/Manganes (redox)
+electron donor: pyrite,discreto,6,Ferro/Manganes (redox)
+oxidation in darkness: iron,discreto,6,Ferro/Manganes (redox)
+oxidation: iron,discreto,6,Ferro/Manganes (redox)
+oxidation: pyrite,discreto,6,Ferro/Manganes (redox)
+reduction: amorphous fe(iii) oxyhydroxid,discreto,6,Ferro/Manganes (redox)
+reduction: amorphous iron (iii) oxide,discreto,6,Ferro/Manganes (redox)
+reduction: ferric iron,discreto,6,Ferro/Manganes (redox)
+reduction: ferric oxide,discreto,6,Ferro/Manganes (redox)
+reduction: ferrihydrite,discreto,6,Ferro/Manganes (redox)
+reduction: iron,discreto,6,Ferro/Manganes (redox)
+enzyme activity: Acid phosphatase (EC3.1.3.2),discreto,7,Fosforo
+enzyme activity: acid phosphatase (EC3.1.3.2),discreto,7,Fosforo
+enzyme activity: alkaline phosphatase (EC3.1.3.1),discreto,7,Fosforo
+enzyme activity: naphthol-AS-BI-phosphohydrolase,discreto,7,Fosforo
+enzyme activity: phosphatase,discreto,7,Fosforo
+enzyme activity: ACC deaminase,discreto,8,PGP - Promocao crescimento vegetal
+produces: indole-3-acetate,discreto,8,PGP - Promocao crescimento vegetal
+produces: indole-3-acetic acid,discreto,8,PGP - Promocao crescimento vegetal
+produces: phenazines,discreto,8,PGP - Promocao crescimento vegetal
+produces: pyochelin,discreto,8,PGP - Promocao crescimento vegetal
+produces: pyocyanin,discreto,8,PGP - Promocao crescimento vegetal
+produces: pyocyanine,discreto,8,PGP - Promocao crescimento vegetal
+produces: siderophore,discreto,8,PGP - Promocao crescimento vegetal
+aerobic growth: anoxygenic phototrophy,discreto,9,Carbono autotrofico/fototrofia
+carbon source: carbon dioxide,discreto,9,Carbono autotrofico/fototrofia
+electron donor: carbon monoxide,discreto,9,Carbono autotrofico/fototrofia
+enzyme activity: Ribulose-bisphosphate carboxylase (EC4.1.1.39),discreto,9,Carbono autotrofico/fototrofia
+fermentation: carbon monoxide,discreto,9,Carbono autotrofico/fototrofia
+growth: anoxygenic photoautotrophy,discreto,9,Carbono autotrofico/fototrofia
+growth: carbon dioxide,discreto,9,Carbono autotrofico/fototrofia
+growth: carbon monoxide,discreto,9,Carbono autotrofico/fototrofia
+growth: photoautotrophy,discreto,9,Carbono autotrofico/fototrofia
+growth: photoheterotrophy,discreto,9,Carbono autotrofico/fototrofia
+growth: phototrophy,discreto,9,Carbono autotrofico/fototrofia
+acidophilic,discreto,10,Stress/resiliencia
+capnophilic,discreto,10,Stress/resiliencia
+growth: 1% sodium chloride,discreto,10,Stress/resiliencia
+growth: 42 degrees Celsius,discreto,10,Stress/resiliencia
+growth: 6.5% NaCl,discreto,10,Stress/resiliencia
+presence of motility,discreto,10,Stress/resiliencia
+psychrophilic,discreto,10,Stress/resiliencia
+required for growth: sodium chloride,discreto,10,Stress/resiliencia
+sporulation,discreto,10,Stress/resiliencia
+thermophilic,discreto,10,Stress/resiliencia
+pH growth,numerico,11,Oticos ambientais
+pH maximum,numerico,11,Oticos ambientais
+pH minimum,numerico,11,Oticos ambientais
+pH preference,discreto,11,Oticos ambientais
+salinity growth,numerico,11,Oticos ambientais
+salinity maximum,numerico,11,Oticos ambientais
+salinity minimum,numerico,11,Oticos ambientais
+salinity preference,discreto,11,Oticos ambientais
+temperature growth,numerico,11,Oticos ambientais
+temperature maximum,numerico,11,Oticos ambientais
+temperature minimum,numerico,11,Oticos ambientais
+temperature preference,discreto,11,Oticos ambientais
+produces: exopolysaccharide,discreto,12,Agregacao/armazenamento
+produces: hopanoid,discreto,12,Agregacao/armazenamento
+produces: poly-beta-hydroxyalkanoate,discreto,12,Agregacao/armazenamento
+produces: polyhydroxyalkanoate,discreto,12,Agregacao/armazenamento
+produces: polyhydroxybutyrate,discreto,12,Agregacao/armazenamento
+produces: polysaccharides,discreto,12,Agregacao/armazenamento
+enzyme activity: NiFe-hydrogenase,discreto,13,Metabolismo geral
+enzyme activity: catalase (EC1.11.1.6),discreto,13,Metabolismo geral
+enzyme activity: hydrogenase (EC1.12.99.6),discreto,13,Metabolismo geral
+enzyme activity: oxidase,discreto,13,Metabolismo geral
+enzyme activity: phenylalanine ammonia-lyase (EC4.3.1.24),discreto,13,Metabolismo geral
+presence of hemolysis,discreto,13,Metabolismo geral
+produces: hydrogen,discreto,13,Metabolismo geral
+produces: melanin,discreto,13,Metabolismo geral
+required for growth: biotin,discreto,13,Metabolismo geral
+required for growth: cobalamin,discreto,13,Metabolismo geral

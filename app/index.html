@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroBiome Digital — Perfil Funcional do Microbioma do Solo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --border: #e0e3ea;
+    --accent: #2563eb;
+    --accent2: #16a34a;
+    --text: #1e2330;
+    --muted: #6b7280;
+    --warn: #b45309;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+  a { color: var(--accent); }
+
+  header { background: var(--card); border-bottom: 1px solid var(--border); padding: 20px 28px; }
+  header h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+  header p  { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+  main { max-width: 1100px; margin: 28px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 24px; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
+  .card h2 { font-size: 11px; font-weight: 600; margin-bottom: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  /* Upload */
+  .upload-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--muted); }
+  .field input[type="file"] { border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 13px; background: var(--bg); cursor: pointer; }
+  .field input[type="number"] { width: 60px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+  button#analyze-btn {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 8px 20px; font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  button#analyze-btn:disabled { opacity: .5; cursor: default; }
+  button#analyze-btn:hover:not(:disabled) { background: #1d4ed8; }
+
+  #status { font-size: 13px; padding: 8px 12px; border-radius: 6px; margin-top: 8px; }
+  #status.info  { background: #eff6ff; color: var(--accent); }
+  #status.error { background: #fef3c7; color: var(--warn); }
+  #status.ok    { background: #f0fdf4; color: var(--accent2); }
+  #status.hidden { display: none; }
+
+  /* Two-column layout for plot + neighbors */
+  .two-col { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+  @media (max-width: 750px) { .two-col { grid-template-columns: 1fr; } }
+
+  #pcoa-wrap { height: 360px; position: relative; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 6px 10px; font-weight: 500; color: var(--muted); border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; }
+  td { padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr.highlight td { background: #eff6ff; }
+
+  /* Trait table */
+  #traits-card { display: none; }
+  .trait-bar-wrap { display: flex; align-items: center; gap: 6px; }
+  .trait-bar { height: 8px; border-radius: 4px; background: var(--accent); min-width: 1px; }
+  .trait-bar.low { background: #d1d5db; }
+  .badge { font-size: 11px; padding: 1px 6px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); white-space: nowrap; }
+  .badge.numeric { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+  .badge.boolean { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+  .badge.categ   { background: #faf5ff; border-color: #c4b5fd; color: #6d28d9; }
+  .badge.none    { background: var(--bg); color: var(--muted); }
+
+  #trait-search { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 13px; margin-bottom: 10px; }
+  #trait-body tr.hidden { display: none; }
+
+  .pcoa-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  #results-section { display: none; }
+
+  /* Interpretive layer */
+  .framing { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px;
+             padding: 12px 16px; margin-bottom: 18px; font-size: 13px; }
+  .framing > p { font-style: italic; color: var(--muted); margin-bottom: 6px; }
+  .framing details summary { cursor: pointer; color: var(--accent); font-size: 12px; }
+  .framing details p { margin-top: 8px; color: #374151; line-height: 1.6; font-size: 12px; }
+  .caveat-small { font-size: 11px; color: var(--warn); margin-bottom: 16px; }
+
+  .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+  .group-item { border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
+  .group-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .group-name { font-weight: 600; font-size: 14px; }
+  .group-tech { font-size: 11px; color: var(--muted); }
+  .level-pill { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 10px;
+                letter-spacing: .04em; text-transform: uppercase; margin-left: auto; }
+  .level-pill.baixo    { background: #fef3c7; color: #92400e; }
+  .level-pill.moderado { background: #f0fdf4; color: #166534; }
+  .level-pill.alto     { background: #eff6ff; color: #1e40af; }
+  .group-phrase { font-size: 13px; color: #374151; line-height: 1.5; margin-bottom: 6px; }
+  .group-note { font-size: 11px; color: var(--warn); font-style: italic; margin-top: 4px; }
+  .group-pct { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* G6 table */
+  .g6-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .g6-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .g6-table tr:last-child td { border-bottom: none; }
+  .g6-label { font-weight: 500; width: 120px; }
+  .g6-band { font-weight: 600; }
+  .g6-band.acido        { color: #b45309; }
+  .g6-band.lig_acido    { color: #d97706; }
+  .g6-band.neutro       { color: #16a34a; }
+  .g6-band.alcalino     { color: #2563eb; }
+  .g6-band.psicorofila  { color: #2563eb; }
+  .g6-band.mesofila     { color: #16a34a; }
+  .g6-band.termofila    { color: #dc2626; }
+  .g6-band.salinidade_baixa { color: #16a34a; }
+  .g6-band.salinidade_mod   { color: #d97706; }
+  .g6-band.salinidade_alta  { color: #dc2626; }
+  .group-item-wide { grid-column: 1 / -1; }
+  .band-acido     { color: #b45309; font-weight:600; }
+  .band-lig-acido { color: #d97706; font-weight:600; }
+  .band-neutro    { color: #16a34a; font-weight:600; }
+  .band-alcalino  { color: #2563eb; font-weight:600; }
+  .band-psicro    { color: #2563eb; font-weight:600; }
+  .band-meso      { color: #16a34a; font-weight:600; }
+  .band-termo     { color: #dc2626; font-weight:600; }
+  .band-sal-baixa { color: #16a34a; font-weight:600; }
+  .band-sal-mod   { color: #d97706; font-weight:600; }
+  .band-sal-alta  { color: #dc2626; font-weight:600; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AgroBiome Digital — Perfil Funcional do Microbioma do Solo</h1>
+  <p>Inferir traços funcionais por comparação com amostras de solo de vinha</p>
+</header>
+
+<main>
+
+  <!-- Upload card -->
+  <div class="card">
+    <h2>Nova amostra</h2>
+    <div class="upload-row">
+      <div class="field">
+        <label>Relatório Bracken (*.report_bracken.txt)</label>
+        <input type="file" id="file-input" accept=".txt">
+      </div>
+      <div class="field">
+        <label>Amostras semelhantes a mostrar</label>
+        <input type="number" id="k-input" value="3" min="1" max="10">
+      </div>
+      <button id="analyze-btn" disabled>Analisar</button>
+    </div>
+    <div id="status" class="hidden"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-section">
+
+    <!-- PCoA + neighbors -->
+    <div class="two-col">
+      <div class="card" id="pcoa-card">
+        <h2>Ordenação (PCoA — Bray-Curtis, PC1/PC2)</h2>
+        <div id="pcoa-wrap"><canvas id="pcoa-chart"></canvas></div>
+        <p class="pcoa-note" id="pcoa-note">Posição da nova amostra = centróide dos vizinhos</p>
+      </div>
+
+      <div class="card" id="neighbors-card">
+        <h2>Amostras mais semelhantes</h2>
+        <table id="neighbors-table">
+          <thead><tr><th>#</th><th>Amostra</th><th>Distância (Bray-Curtis)</th></tr></thead>
+          <tbody id="neighbors-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Interpretive panel -->
+    <div class="card" id="interpret-card" style="display:none">
+      <h2>Perfil funcional interpretado</h2>
+      <div class="framing">
+        <p>Indicadores do potencial microbiano do solo, inferidos da composição da comunidade. Leitura comparativa, não medição.</p>
+        <details>
+          <summary>Como interpretar</summary>
+          <p>Cada indicador resulta da composição microbiana da amostra, estimada por sequenciação genética — reflete o <em>potencial</em> da comunidade, não uma medição direta da química ou da atividade do solo. Os rótulos (baixo / moderado / alto) são relativos à coleção de amostras analisadas: "alto" significa acima do habitual nas parcelas semelhantes, não um valor absoluto. Esta ferramenta descreve o estado microbiano; não constitui recomendação agronómica.</p>
+        </details>
+      </div>
+      <p class="caveat-small">⚠ Coleção com 47 amostras — percentis provisórios.</p>
+      <div class="groups-grid" id="interpret-groups"></div>
+    </div>
+
+    <!-- Tabela A — Indicadores funcionais -->
+    <div class="card" id="traits-card">
+      <h2>Indicadores funcionais</h2>
+      <input type="text" id="trait-search" placeholder="Filtrar indicadores…">
+      <table id="traits-table">
+        <thead><tr><th style="width:55%">Indicador</th><th style="width:45%">% da comunidade</th></tr></thead>
+        <tbody id="trait-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Tabela B — Ótimos ambientais -->
+    <div class="card" id="env-card" style="display:none">
+      <h2>Ótimos ambientais</h2>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Valores inferidos da comunidade (preferência ambiental dos microrganismos presentes) — não são medições do solo.</p>
+      <table id="env-table">
+        <thead><tr><th style="width:40%">Indicador</th><th style="width:60%">Valor estimado</th></tr></thead>
+        <tbody id="env-body"></tbody>
+      </table>
+    </div>
+
+  </div><!-- /results-section -->
+
+</main>
+
+<script>
+// ---------------------------------------------------------------------------
+// Data loading
+// ---------------------------------------------------------------------------
+let compData   = null;   // {genera, samples, matrix}
+let pcoaData   = null;   // {samples, pc1, pc2, pct_var}
+let traitNames = null;   // {slug: displayName}
+let groupScores = null;  // {samples, g1..g5, g6_ph, g6_temp, g6_sal}
+let pcoaChart  = null;
+
+async function loadStaticData() {
+  setStatus('A carregar dados de referência…', 'info');
+  try {
+    [compData, pcoaData, traitNames, groupScores] = await Promise.all([
+      fetch('data/compositions.json').then(r => r.json()),
+      fetch('data/pcoa.json').then(r => r.json()),
+      fetch('data/trait_names.json').then(r => r.json()),
+      fetch('data/group_scores.json').then(r => r.json()),
+    ]);
+    if (pcoaData.pct_var) {
+      const [p1, p2] = pcoaData.pct_var;
+      const fmt = v => v.toFixed(1).replace('.', ',');
+      document.getElementById('pcoa-note').textContent =
+        `PC1 ${fmt(p1)}% · PC2 ${fmt(p2)}% · Posição da nova amostra = centróide dos vizinhos`;
+    }
+    setStatus('Dados carregados. Seleccione um ficheiro Bracken para começar.', 'ok');
+    document.getElementById('analyze-btn').disabled = false;
+  } catch(e) {
+    setStatus('Erro ao carregar dados de referência. Execute via servidor HTTP (python -m http.server 8000) — o protocolo file:// não é suportado.', 'error');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Bracken parser (replica of bracken_to_profile.py)
+// ---------------------------------------------------------------------------
+function parseBrackenReport(text) {
+  const genera = {};
+  const stack = []; // [{depth, rank, taxid, name}]
+  let totalReads = null;
+
+  for (const raw of text.split('\n')) {
+    if (!raw.trim()) continue;
+    const parts = raw.split('\t');
+    if (parts.length < 6) continue;
+
+    const readsClade = parseInt(parts[1]);
+    const readsTaxon = parseInt(parts[2]);
+    const rank       = parts[3];
+    const taxid      = parseInt(parts[4]);
+    const nameField  = parts[5];
+
+    if (isNaN(readsClade) || isNaN(readsTaxon) || isNaN(taxid)) continue;
+
+    const nameStripped = nameField.replace(/^ +/, '');
+    const depth = Math.floor((nameField.length - nameStripped.length) / 2);
+
+    if (totalReads === null) totalReads = readsClade;
+
+    while (stack.length > 0 && stack[stack.length - 1].depth >= depth) stack.pop();
+    stack.push({depth, rank, taxid, name: nameStripped});
+
+    if (rank === 'G') {
+      const anc = {};
+      for (let i = 0; i < stack.length - 1; i++) {
+        const e = stack[i];
+        if ('DPCOF'.includes(e.rank) && e.rank.length === 1) anc[e.rank] = e.name;
+      }
+      const slots = ['D','P','C','O','F'].map(r => anc[r] || '');
+      slots.push(nameStripped);
+      genera[taxid] = {taxid, name: nameStripped, reads: readsTaxon};
+    } else if (rank === 'S') {
+      for (let i = stack.length - 2; i >= 0; i--) {
+        if (stack[i].rank === 'G') {
+          if (genera[stack[i].taxid] !== undefined) genera[stack[i].taxid].reads += readsTaxon;
+          break;
+        }
+      }
+    }
+  }
+
+  if (!totalReads) throw new Error('Could not determine total reads. Is this a valid Bracken report?');
+  return {totalReads, genera: Object.values(genera)};
+}
+
+// ---------------------------------------------------------------------------
+// Bray-Curtis + k-NN
+// ---------------------------------------------------------------------------
+function buildQueryVector(parsedGenera, refGenera) {
+  const map = {};
+  let total = 0;
+  for (const g of parsedGenera) {
+    if (g.reads > 0) { map[g.name] = (map[g.name] || 0) + g.reads; total += g.reads; }
+  }
+  if (total === 0) throw new Error('No genus-level reads in the uploaded file.');
+  return refGenera.map(g => (map[g] || 0) / total);
+}
+
+function brayCurtis(a, b) {
+  let num = 0, den = 0;
+  for (let i = 0; i < a.length; i++) { num += Math.abs(a[i] - b[i]); den += a[i] + b[i]; }
+  return den === 0 ? 0 : num / den;
+}
+
+function findKNN(queryVec, k) {
+  const {genera, samples, matrix} = compData;
+  const n = genera.length;
+  const dists = samples.map((sid, j) => {
+    const ref = new Array(n);
+    for (let i = 0; i < n; i++) ref[i] = matrix[i][j];
+    return {id: sid, dist: brayCurtis(queryVec, ref)};
+  });
+  dists.sort((a, b) => a.dist - b.dist);
+  return dists.slice(0, k);
+}
+
+function pcoaCentroid(neighbors) {
+  const idx = Object.fromEntries(pcoaData.samples.map((s, i) => [s, i]));
+  let s1 = 0, s2 = 0;
+  for (const n of neighbors) { s1 += pcoaData.pc1[idx[n.id]]; s2 += pcoaData.pc2[idx[n.id]]; }
+  return {pc1: s1 / neighbors.length, pc2: s2 / neighbors.length};
+}
+
+// Label de variância explicada (ex: "19,7%") a partir do pcoa.json
+function pcVarLabel(i) {
+  const v = pcoaData && pcoaData.pct_var ? pcoaData.pct_var[i] : null;
+  return v == null ? '—' : v.toFixed(1).replace('.', ',') + '%';
+}
+
+// ---------------------------------------------------------------------------
+// Rendering — PCoA
+// ---------------------------------------------------------------------------
+function renderPCoA(neighbors, newPt) {
+  const neighborIds = new Set(neighbors.map(n => n.id));
+  const refPts = pcoaData.samples
+    .map((sid, i) => ({x: pcoaData.pc1[i], y: pcoaData.pc2[i], sid}))
+    .filter(p => !neighborIds.has(p.sid));
+  const neighborPts = neighbors.map(n => {
+    const i = pcoaData.samples.indexOf(n.id);
+    return {x: pcoaData.pc1[i], y: pcoaData.pc2[i], sid: n.id};
+  });
+
+  const datasets = [
+    {
+      label: `Referência (n=${pcoaData.samples.length})`,
+      data: refPts.map(p => ({x: p.x, y: p.y})),
+      pointRadius: 5, pointHoverRadius: 7,
+      backgroundColor: '#9ca3af', borderColor: '#6b7280', borderWidth: 1,
+    },
+    {
+      label: 'Amostras semelhantes',
+      data: neighborPts.map(p => ({x: p.x, y: p.y, label: p.sid})),
+      pointRadius: 8, pointHoverRadius: 10,
+      backgroundColor: '#2563eb', borderColor: '#1d4ed8', borderWidth: 1.5,
+    },
+    {
+      label: 'Nova amostra',
+      data: [{x: newPt.pc1, y: newPt.pc2}],
+      pointRadius: 10, pointHoverRadius: 12,
+      pointStyle: 'crossRot',
+      backgroundColor: '#dc2626', borderColor: '#dc2626', borderWidth: 2.5,
+    },
+  ];
+
+  if (pcoaChart) pcoaChart.destroy();
+  pcoaChart = new Chart(document.getElementById('pcoa-chart'), {
+    type: 'scatter',
+    data: {datasets},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {position: 'top', labels: {boxWidth: 10, font: {size: 11}}},
+        tooltip: {callbacks: {label: ctx => {
+          const raw = ctx.raw;
+          const lbl = raw.label ? `Sample ${raw.label}` : ctx.dataset.label;
+          return `${lbl} (${raw.x.toFixed(3)}, ${raw.y.toFixed(3)})`;
+        }}},
+      },
+      scales: {
+        x: {title: {display: true, text: `PC1 (${pcVarLabel(0)})`, font: {size: 11}}, grid: {color: '#f3f4f6'}},
+        y: {title: {display: true, text: `PC2 (${pcVarLabel(1)})`, font: {size: 11}}, grid: {color: '#f3f4f6'}},
+      },
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Rendering — neighbors table
+// ---------------------------------------------------------------------------
+function renderNeighbors(neighbors) {
+  const tbody = document.getElementById('neighbors-body');
+  tbody.innerHTML = '';
+  neighbors.forEach((n, i) => {
+    const tr = document.createElement('tr');
+    if (i === 0) tr.classList.add('highlight');
+    tr.innerHTML = `<td>${i+1}</td><td>${n.id}</td><td>${n.dist.toFixed(4)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Configurável — bandas para grupo 11 (cortes por afinar)
+// ---------------------------------------------------------------------------
+const PH_BANDS   = [
+  {max:6.0, cls:'band-acido',     label:'ácido'},
+  {max:6.5, cls:'band-lig-acido', label:'ligeiramente ácido'},
+  {max:7.5, cls:'band-neutro',    label:'neutro'},
+  {max:Infinity, cls:'band-alcalino', label:'alcalino'},
+];
+const TEMP_BANDS = [
+  {max:20,       cls:'band-psicro',  label:'psicrófila'},
+  {max:40,       cls:'band-meso',    label:'mesófila'},
+  {max:Infinity, cls:'band-termo',   label:'termófila'},
+];
+const SAL_BANDS  = [
+  {max:2,        cls:'band-sal-baixa', label:'baixa salinidade'},
+  {max:5,        cls:'band-sal-mod',   label:'salinidade moderada'},
+  {max:Infinity, cls:'band-sal-alta',  label:'salinidade alta'},
+];
+
+function getBand(v, bands) {
+  if (v === null || v === undefined) return {cls:'', label:'sem dados'};
+  return bands.find(b => v < b.max) || bands[bands.length-1];
+}
+
+// ---------------------------------------------------------------------------
+// Grupos (19 grupos da spec)
+// ---------------------------------------------------------------------------
+const GROUP_DEFS = [
+  {id:'1a', name:'Fixação de azoto', tech:'diazotrofia, nitrogenase',
+   phrases:{baixo:'Poucos microrganismos capazes de captar azoto do ar — habitual, é sempre uma minoria (fixação de azoto abaixo do habitual).',moderado:'Capacidade de captar azoto do ar dentro do habitual.',alto:'Mais microrganismos do que o habitual capazes de captar azoto do ar (fixação de azoto elevada).'}},
+  {id:'1b', name:'Nitrificação', tech:'nitrificação, oxidação de amónia',
+   phrases:{baixo:'Conversão de amónio em nitrato abaixo do habitual.',moderado:'Conversão de amónio em nitrato dentro do habitual.',alto:'Conversão de amónio em nitrato acima do habitual — nitrato mais disponível, mas também mais sujeito a lixiviação.'}},
+  {id:'1c', name:'Desnitrificação / redução de nitrato', tech:'desnitrificação, redução de nitrato/nitrito',
+   phrases:{baixo:'Poucos sinais de perda de azoto por via gasosa (desnitrificação abaixo do habitual).',moderado:'Sinais de perda gasosa de azoto dentro do habitual.',alto:'Sinais acima do habitual de perda de azoto por via gasosa — associada a zonas com pouco oxigénio (desnitrificação elevada).'}},
+  {id:'1d', name:'Amonificação / mineralização de azoto', tech:'amonificação, urease',
+   phrases:{baixo:'Libertação de azoto a partir de matéria orgânica abaixo do habitual.',moderado:'Libertação de azoto a partir de matéria orgânica dentro do habitual.',alto:'Libertação de azoto a partir de matéria orgânica acima do habitual.'}},
+  {id:'2',  name:'Arejamento do solo', tech:'equilíbrio aeróbios/anaeróbios',
+   phrases:{baixo:'Circulação de ar abaixo do habitual — compatível com solo mais compactado ou húmido.',moderado:'Circulação de ar dentro do habitual.',alto:'Boa circulação de ar — solo bem arejado e drenado.'}},
+  {id:'3a', name:'Decomposição — fibra e polímeros vegetais', tech:'degradação de celulose, lenhina, quitina, xilano, amido',
+   phrases:{baixo:'Capacidade de decompor fibra vegetal abaixo do habitual.',moderado:'Capacidade de decompor fibra vegetal dentro do habitual.',alto:'Capacidade de decompor fibra vegetal acima do habitual.'},
+   note:'A decomposição de celulose e lenhina é feita sobretudo por fungos, invisíveis a este método; um valor baixo não significa ausência.'},
+  {id:'3b', name:'Decomposição — proteínas', tech:'proteólise — caseína, gelatina, colagénio',
+   phrases:{baixo:'Capacidade de decompor matéria proteica abaixo do habitual.',moderado:'Capacidade de decompor matéria proteica dentro do habitual.',alto:'Capacidade de decompor matéria proteica acima do habitual.'}},
+  {id:'3c', name:'Decomposição — compostos recalcitrantes / poluentes', tech:'degradação de aromáticos, hidrocarbonetos',
+   phrases:{baixo:'Poucos sinais de capacidade para degradar compostos persistentes ou poluentes.',moderado:'Capacidade de degradar compostos persistentes dentro do habitual.',alto:'Capacidade acima do habitual para degradar compostos persistentes ou poluentes (potencial de biorremediação).'}},
+  {id:'3d', name:'Decomposição — geral', tech:'quimio-heterotrofia, fermentação',
+   phrases:{baixo:'Atividade geral de decomposição abaixo do habitual.',moderado:'Atividade geral de decomposição dentro do habitual.',alto:'Atividade geral de decomposição acima do habitual.'}},
+  {id:'4',  name:'Enxofre / sinais de anoxia', tech:'ciclo do enxofre, metanogénese',
+   phrases:{baixo:'Sem sinais relevantes de zonas sem oxigénio (esperado em solo arejado).',moderado:'Alguns sinais de microambientes sem oxigénio.',alto:'Sinais acima do habitual de zonas sem oxigénio — compatível com encharcamento ou compactação.'}},
+  {id:'5',  name:'Metilotrofia / metanotrofia', tech:'oxidação de metano e metanol',
+   phrases:{baixo:'Poucos microrganismos que consomem metano ou metanol.',moderado:'Consumo de compostos de um carbono dentro do habitual.',alto:'Mais microrganismos do que o habitual que consomem metano/metanol — relevante para mitigar emissões de metano.'}},
+  {id:'6',  name:'Ferro e manganês (redox)', tech:'redução/oxidação de Fe e Mn',
+   phrases:{baixo:'Poucos sinais de transformação de ferro/manganês.',moderado:'Transformação de ferro/manganês dentro do habitual.',alto:'Sinais acima do habitual de transformação de ferro/manganês — indicador de condições de redução, associadas a encharcamento.'}},
+  {id:'7',  name:'Fósforo', tech:'fosfatases — mineralização de P',
+   phrases:{baixo:'Capacidade de disponibilizar fósforo abaixo do habitual.',moderado:'Capacidade de disponibilizar fósforo dentro do habitual.',alto:'Capacidade de disponibilizar fósforo acima do habitual — mineralização ativa de fósforo do solo.'}},
+  {id:'8',  name:'Promoção de crescimento vegetal (PGP)', tech:'auxina, sideróforos, ACC-deaminase, biocontrolo',
+   phrases:{baixo:'Poucos sinais de microrganismos promotores de crescimento vegetal.',moderado:'Presença de promotores de crescimento dentro do habitual.',alto:'Presença acima do habitual de microrganismos promotores de crescimento — produção de hormonas vegetais, captação de ferro e potencial de biocontrolo.'}},
+  {id:'9',  name:'Carbono autotrófico / fototrofia', tech:'fixação de CO₂, fototrofia, RuBisCO',
+   phrases:{baixo:'Poucos microrganismos que fixam carbono diretamente.',moderado:'Capacidade de fixação de carbono dentro do habitual.',alto:'Mais microrganismos do que o habitual capazes de fixar carbono diretamente (fototrofia/quimioautotrofia).'}},
+  {id:'10', name:'Resistência a stress', tech:'resiliência — esporulação, mobilidade, tolerâncias',
+   phrases:{baixo:'Marcadores de resistência a condições adversas abaixo do habitual.',moderado:'Marcadores de resistência dentro do habitual.',alto:'Marcadores de resistência acima do habitual — comunidade mais preparada para seca ou perturbação.'}},
+  {id:'12', name:'Agregação / armazenamento', tech:'exopolissacáridos, PHB/PHA',
+   phrases:{baixo:'Produção de substâncias que agregam o solo abaixo do habitual.',moderado:'Produção de substâncias que agregam o solo dentro do habitual.',alto:'Produção acima do habitual de substâncias que ajudam a estruturar o solo e a reter água.'}},
+  {id:'13', name:'Metabolismo geral', special:'generic',
+   phrase:'Outros marcadores metabólicos da comunidade, sem leitura agronómica específica; apresentados a título informativo.'},
+  {id:'11', name:'Ótimos ambientais da comunidade', special:'absolute'},
+];
+
+// ---------------------------------------------------------------------------
+// Régua relativa
+// ---------------------------------------------------------------------------
+function percentileRank(value, refArray, excludeIdx) {
+  const ref = refArray.filter((_, i) => i !== excludeIdx);
+  const below = ref.filter(v => v < value).length;
+  return below / ref.length;
+}
+function levelFromPct(pct) {
+  if (pct < 1/3) return 'baixo';
+  if (pct < 2/3) return 'moderado';
+  return 'alto';
+}
+
+// ---------------------------------------------------------------------------
+// Rendering — trait profile (Tabela A + Tabela B)
+// ---------------------------------------------------------------------------
+function renderTraits(featureObj) {
+  const rowsA = []; // discrete (non-mean) features
+  const rowsB = []; // numeric (.mean) features
+
+  // Group by slug
+  const bySlug = {};
+  for (const [key, val] of Object.entries(featureObj)) {
+    const dot = key.indexOf('.');
+    const slug = key.slice(0, dot);
+    const state = key.slice(dot + 1);
+    if (!bySlug[slug]) bySlug[slug] = {};
+    bySlug[slug][state] = val;
+  }
+
+  for (const [slug, states] of Object.entries(bySlug)) {
+    const name = traitNames[slug] || slug.replace(/_/g, ' ');
+    if ('mean' in states) {
+      rowsB.push({name, value: states.mean});
+    } else {
+      const trueFrac = states.true || 0;
+      if (trueFrac > 0) rowsA.push({name, pct: (trueFrac * 100).toFixed(1), sort: trueFrac});
+    }
+  }
+
+  // Table A — sort by true fraction desc
+  rowsA.sort((a, b) => b.sort - a.sort);
+  const tbodyA = document.getElementById('trait-body');
+  tbodyA.innerHTML = '';
+  for (const r of rowsA) {
+    const tr = document.createElement('tr');
+    tr.dataset.name = r.name.toLowerCase();
+    tr.innerHTML = `<td>${r.name}</td><td>${r.pct}%</td>`;
+    tbodyA.appendChild(tr);
+  }
+  document.getElementById('traits-card').style.display = 'block';
+
+  // Table B — numeric traits
+  if (rowsB.length > 0) {
+    rowsB.sort((a, b) => a.name.localeCompare(b.name));
+    const tbodyB = document.getElementById('env-body');
+    tbodyB.innerHTML = '';
+    const UNITS = {ph:'', temperature:' °C', salinity:''};
+    for (const r of rowsB) {
+      const unit = Object.entries(UNITS).find(([k]) => r.name.toLowerCase().includes(k))?.[1] ?? '';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.name}</td><td>${r.value.toFixed(2)}${unit}</td>`;
+      tbodyB.appendChild(tr);
+    }
+    document.getElementById('env-card').style.display = 'block';
+  }
+
+  // Filter Table A
+  document.getElementById('trait-search').oninput = function() {
+    const q = this.value.toLowerCase();
+    for (const tr of tbodyA.querySelectorAll('tr')) {
+      tr.classList.toggle('hidden', q && !tr.dataset.name.includes(q));
+    }
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Rendering — secção sintetizada (19 grupos)
+// ---------------------------------------------------------------------------
+function renderInterpretation(featureObj, matchedSampleId) {
+  const matchIdx = groupScores.samples.indexOf(matchedSampleId);
+  const groupsEl = document.getElementById('interpret-groups');
+  groupsEl.innerHTML = '';
+
+  for (const grp of GROUP_DEFS) {
+
+    if (grp.special === 'absolute') {
+      // Grupo 11 — ótimos ambientais (escala absoluta)
+      const ph   = featureObj['ph_growth.mean']          ?? null;
+      const temp = featureObj['temperature_growth.mean'] ?? null;
+      const sal  = featureObj['salinity_growth.mean']    ?? null;
+
+      const phB   = getBand(ph,   PH_BANDS);
+      const tempB = getBand(temp, TEMP_BANDS);
+      const salB  = getBand(sal,  SAL_BANDS);
+
+      const phLine   = ph   !== null ? `A comunidade microbiana é típica de solos de reação <strong class="${phB.cls}">${phB.label}</strong> (pH ótimo predito ≈ ${ph.toFixed(1)}).` : 'Dados insuficientes.';
+      const tempLine = temp !== null ? `Comunidade <strong class="${tempB.cls}">${tempB.label}</strong> — adaptada a temperaturas ${tempB.label==='mesófila'?'moderadas':tempB.label==='psicrófila'?'baixas':'elevadas'} (temperatura ótima predita ≈ ${temp.toFixed(1)} °C).` : 'Dados insuficientes.';
+      const salLine  = sal  !== null ? `Comunidade adaptada a <strong class="${salB.cls}">${salB.label}</strong> — sem sinais de stress salino (salinidade ótima predita ≈ ${sal.toFixed(2)}).` : 'Dados insuficientes.';
+
+      const div = document.createElement('div');
+      div.className = 'group-item group-item-wide';
+      div.innerHTML = `
+        <div class="group-header">
+          <span class="group-name">${grp.name}</span>
+          <span class="group-tech">(escala absoluta, não régua relativa)</span>
+        </div>
+        <p class="group-note" style="margin-bottom:8px">⚠ Ótimos inferidos da comunidade (preferência ambiental dos microrganismos presentes), não medições do solo.</p>
+        <p class="group-phrase">${phLine}</p>
+        <p class="group-phrase">${tempLine}</p>
+        <p class="group-phrase">${salLine}</p>`;
+      groupsEl.appendChild(div);
+      continue;
+    }
+
+    if (grp.special === 'generic') {
+      // Grupo 13 — frase genérica, não parametrizada
+      const div = document.createElement('div');
+      div.className = 'group-item';
+      div.innerHTML = `
+        <div class="group-header">
+          <span class="group-name">${grp.name}</span>
+        </div>
+        <p class="group-phrase">${grp.phrase}</p>`;
+      groupsEl.appendChild(div);
+      continue;
+    }
+
+    // Grupos com régua relativa (todos os outros)
+    const refArr = groupScores.groups[grp.id];
+    if (!refArr) continue; // grupo sem dados na coleção
+
+    const score = groupScores.groups[grp.id][matchIdx];
+    const pct   = percentileRank(score, refArr, matchIdx);
+    const level = levelFromPct(pct);
+
+    const div = document.createElement('div');
+    div.className = 'group-item';
+    div.innerHTML = `
+      <div class="group-header">
+        <span class="group-name">${grp.name}</span>
+        <span class="group-tech">(${grp.tech})</span>
+        <span class="level-pill ${level}">${level}</span>
+      </div>
+      <p class="group-phrase">${grp.phrases[level]}</p>
+      ${grp.note ? `<p class="group-note">ℹ ${grp.note}</p>` : ''}
+      <p class="group-pct">Percentil na coleção: ${Math.round(pct*100)}º</p>`;
+    groupsEl.appendChild(div);
+  }
+
+  document.getElementById('interpret-card').style.display = 'block';
+}
+
+// ---------------------------------------------------------------------------
+// Main analysis flow
+// ---------------------------------------------------------------------------
+function setStatus(msg, cls) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = cls;
+}
+
+document.getElementById('file-input').addEventListener('change', () => {
+  const f = document.getElementById('file-input').files[0];
+  if (f) document.getElementById('analyze-btn').disabled = !compData;
+});
+
+document.getElementById('analyze-btn').addEventListener('click', async () => {
+  const file = document.getElementById('file-input').files[0];
+  if (!file) return;
+  const k = Math.max(1, Math.min(10, parseInt(document.getElementById('k-input').value) || 3));
+
+  document.getElementById('analyze-btn').disabled = true;
+  setStatus('A processar ficheiro Bracken…', 'info');
+
+  try {
+    const text = await file.text();
+    const {totalReads, genera} = parseBrackenReport(text);
+
+    const queryVec  = buildQueryVector(genera, compData.genera);
+    const matched   = queryVec.filter(v => v > 0).length;
+    const coverage  = (matched / compData.genera.length * 100).toFixed(0);
+
+    setStatus(`${genera.length} géneros detetados, ${matched} correspondidos na referência. A calcular distâncias…`, 'info');
+
+    const neighbors = findKNN(queryVec, k);
+    const newPt     = pcoaCentroid(neighbors);
+
+    renderPCoA(neighbors, newPt);
+    renderNeighbors(neighbors);
+
+    document.getElementById('results-section').style.display = 'block';
+
+    // Carregar traços da amostra mais semelhante
+    const top = neighbors[0];
+    setStatus(`A carregar perfil de traços da amostra ${top.id}…`, 'info');
+    const traits = await fetch(`data/traits/${top.id}.json`).then(r => r.json());
+    renderInterpretation(traits, top.id);
+    renderTraits(traits);
+
+    setStatus(
+      `Concluído. Amostra mais semelhante: amostra ${top.id} (Bray-Curtis = ${top.dist.toFixed(4).replace('.', ',')}). ` +
+      `${matched} géneros de referência correspondidos.`,
+      'ok'
+    );
+  } catch(e) {
+    setStatus('Erro: ' + e.message, 'error');
+  } finally {
+    document.getElementById('analyze-btn').disabled = false;
+  }
+});
+
+// Boot
+loadStaticData();
+</script>
+</body>
+</html>
