@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AgroBiome Digital — Perfil Funcional do Microbioma do Solo</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <style>
   :root {
     --bg:#e5e8ef; --card:#ffffff; --border:#dfe3ec; --accent:#1d4ed8; --accent2:#15803d;
@@ -108,7 +109,7 @@
   .g-more { color:var(--muted); font-style:italic; }
 
   /* Composição observada */
-  .obs { display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:center; }
+  .obs { display:grid; grid-template-columns:480px 1fr; gap:24px; align-items:center; }
   @media (max-width:680px) { .obs { grid-template-columns:1fr; } }
   .legend { display:flex; flex-direction:column; gap:6px; font-size:12px; }
   .legend .row { display:flex; align-items:center; gap:8px; }
@@ -644,45 +645,52 @@ function arcPath(cx,cy,r0,r1,a0,a1){
   return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r1} ${r1} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)} `+
          `L${x2.toFixed(1)} ${y2.toFixed(1)} A${r0} ${r0} 0 ${large} 0 ${x3.toFixed(1)} ${y3.toFixed(1)} Z`;
 }
+// Sunburst interativo (Plotly) — hierarquia Domínio→Filo→Classe→Ordem→Família→Género.
+// Clique numa fatia faz zoom (re-root); clique no centro recua. % no hover.
 function renderSunburst(parsedGenera){
-  const phy={}; let total=0, domCount={};
+  const LEVELS=['D','P','C','O','F'];
+  let total=0; const nodes={}; const phyTotal={};
   for(const g of parsedGenera){
-    const P=g.lineage.P||'Não classificado', C=g.lineage.C||'—', D=g.lineage.D||'';
     total+=g.reads;
-    if(D) domCount[D]=(domCount[D]||0)+g.reads;
-    phy[P]=phy[P]||{v:0,cls:{}}; phy[P].v+=g.reads; phy[P].cls[C]=(phy[P].cls[C]||0)+g.reads;
+    const chain=[]; let phyIdx=-1;
+    for(const k of LEVELS){ const v=g.lineage[k]; if(v){ if(k==='P') phyIdx=chain.length; chain.push(v); } }
+    chain.push(g.name);                 // folha = género
+    const phylum=g.lineage.P||'';
+    if(phylum) phyTotal[phylum]=(phyTotal[phylum]||0)+g.reads;
+    const parts=[];
+    for(let i=0;i<chain.length;i++){
+      parts.push(chain[i]);
+      const id=parts.join(' › ');
+      const parent=i===0?'':parts.slice(0,i).join(' › ');
+      let n=nodes[id];
+      if(!n) n=nodes[id]={id,label:chain[i],parent,value:0,phylum,lvl:i,phyIdx};
+      n.value+=g.reads;
+    }
   }
-  let phyla=Object.entries(phy).map(([n,o])=>({n,v:o.v,cls:o.cls})).sort((a,b)=>b.v-a.v);
-  const MINP=0.015*total; const small=phyla.filter(p=>p.v<MINP);
-  phyla=phyla.filter(p=>p.v>=MINP);
-  if(small.length){ phyla.push({n:'Outros',v:small.reduce((s,p)=>s+p.v,0),cls:{}}); }
-  const domLabel=Object.entries(domCount).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+  // uma cor de paleta por filo (ordenado por abundância); aprofundar = clarear
+  const phyOrder=Object.entries(phyTotal).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+  const phyColor={}; phyOrder.forEach((p,i)=>phyColor[p]=PALETTE[i%PALETTE.length]);
+  const ids=[],labels=[],parents=[],values=[],colors=[];
+  for(const n of Object.values(nodes)){
+    ids.push(n.id); labels.push(n.label); parents.push(n.parent); values.push(n.value);
+    let col;
+    if(!n.phylum||n.phyIdx<0||n.lvl<n.phyIdx) col='#9aa3b2';      // domínio / acima do filo
+    else { const below=n.lvl-n.phyIdx; col= below<=0 ? phyColor[n.phylum] : lighten(phyColor[n.phylum],Math.min(0.6,0.13*below)); }
+    colors.push(col);
+  }
+  const trace={ type:'sunburst', ids, labels, parents, values, branchvalues:'total',
+    maxdepth:3, sort:true, insidetextorientation:'radial',
+    marker:{colors, line:{color:'#fff',width:1}}, leaf:{opacity:0.9},
+    hovertemplate:'<b>%{label}</b><br>%{percentRoot:.1%} do total · %{percentParent:.1%} do nó-pai<br>%{value:,d} reads<extra></extra>' };
+  const layout={ margin:{l:0,r:0,t:0,b:0}, height:480, paper_bgcolor:'rgba(0,0,0,0)',
+    font:{family:'system-ui,Segoe UI,sans-serif'} };
+  Plotly.react('sunburst',[trace],layout,{displayModeBar:false,responsive:true});
 
-  const cx=170,cy=175,r0=40,r1=92,r2=140;
-  let svg=`<svg viewBox="0 0 340 350" width="100%" style="max-width:340px">`;
-  let a=-Math.PI/2;
-  phyla.forEach((p,pi)=>{
-    const span=p.v/total*2*Math.PI; const col=PALETTE[pi%PALETTE.length];
-    svg+=`<path d="${arcPath(cx,cy,r0,r1,a,a+span)}" fill="${col}" stroke="#fff" stroke-width="1.5"><title>${p.n} — ${fmt(p.v/total*100,1)}%</title></path>`;
-    // anel das classes
-    let cls=Object.entries(p.cls).map(([n,v])=>({n,v})).sort((x,y)=>y.v-x.v);
-    const minc=0.15*p.v; const sm=cls.filter(c=>c.v<minc); cls=cls.filter(c=>c.v>=minc);
-    if(sm.length) cls.push({n:'Outros',v:sm.reduce((s,c)=>s+c.v,0)});
-    let ca=a;
-    cls.forEach((c,ci)=>{ const cspan=c.v/p.v*span;
-      svg+=`<path d="${arcPath(cx,cy,r1,r2,ca,ca+cspan)}" fill="${lighten(col,0.45)}" stroke="#fff" stroke-width="1"><title>${c.n} — ${fmt(c.v/total*100,1)}%</title></path>`;
-      ca+=cspan; });
-    a+=span;
-  });
-  svg+=`<circle cx="${cx}" cy="${cy}" r="${r0}" fill="#6b7280"/>`;
-  svg+=`<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="#fff">${domLabel||'—'}</text></svg>`;
-  document.getElementById('sunburst').innerHTML=svg;
-
-  // legenda (top filos)
-  const leg=phyla.slice(0,6).map((p,pi)=>
-    `<div class="row"><span class="sw" style="background:${PALETTE[pi%PALETTE.length]}"></span> ${p.n} — ${fmt(p.v/total*100,1)}%</div>`).join('');
+  // legenda (top filos) + dica de interação
+  const leg=phyOrder.slice(0,6).map(p=>
+    `<div class="row"><span class="sw" style="background:${phyColor[p]}"></span> ${p} — ${fmt(phyTotal[p]/total*100,1)}%</div>`).join('');
   document.getElementById('sunburst-legend').innerHTML=leg+
-    `<div class="row" style="color:var(--muted);font-style:italic;margin-top:4px">Anéis: filo (interno) → classe (externo). Cauda rara agregada em “Outros”.</div>`;
+    `<div class="row" style="color:var(--muted);font-style:italic;margin-top:4px">Clique numa fatia para aprofundar (Domínio→Filo→Classe→Ordem→Família→Género); clique no centro para recuar.</div>`;
 }
 function renderDiversity(div){
   document.getElementById('diversity-line').innerHTML=
