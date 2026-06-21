@@ -359,13 +359,3 @@ produces: poly-beta-hydroxyalkanoate,discreto,12,Agregacao/armazenamento
 produces: polyhydroxyalkanoate,discreto,12,Agregacao/armazenamento
 produces: polyhydroxybutyrate,discreto,12,Agregacao/armazenamento
 produces: polysaccharides,discreto,12,Agregacao/armazenamento
-enzyme activity: NiFe-hydrogenase,discreto,13,Metabolismo geral
-enzyme activity: catalase (EC1.11.1.6),discreto,13,Metabolismo geral
-enzyme activity: hydrogenase (EC1.12.99.6),discreto,13,Metabolismo geral
-enzyme activity: oxidase,discreto,13,Metabolismo geral
-enzyme activity: phenylalanine ammonia-lyase (EC4.3.1.24),discreto,13,Metabolismo geral
-presence of hemolysis,discreto,13,Metabolismo geral
-produces: hydrogen,discreto,13,Metabolismo geral
-produces: melanin,discreto,13,Metabolismo geral
-required for growth: biotin,discreto,13,Metabolismo geral
-required for growth: cobalamin,discreto,13,Metabolismo geral

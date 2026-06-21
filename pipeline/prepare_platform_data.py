@@ -33,6 +33,15 @@ TRAIT_NAMES_FILE = OUT_DIR / "trait_names.json"
 KEEP_CATS = {'agronomico', 'incerto'}
 
 GROUP_SCORES_FILE  = DOCS / "tracos_por_grupo.csv"
+TRAIT_PT_FILE      = DOCS / "tracos_traducao.csv"
+PER_SAMPLE_DIR     = DERIVED / "per_sample"
+GROUP_GENERA_DIR   = OUT_DIR / "group_genera"
+TOP_GENERA_PER_GROUP = 8
+
+
+def slug(s):
+    """slug(trait) — minúsculas, runs de não-alfanuméricos -> '_' (igual ao pipeline)."""
+    return re.sub(r'[^a-z0-9]+', '_', s.lower()).strip('_')
 
 
 def sample_prefix(name):
@@ -143,9 +152,101 @@ def build_traits():
           f"{traits_dir}", file=sys.stderr)
 
 
+def build_trait_names_pt():
+    """
+    Gera trait_names_pt.json = {slug: trait_pt} a partir de tracos_traducao.csv.
+    O slug é calculado de trait_en (chave estável do pipeline); só a apresentação
+    usa trait_pt. As chaves deste ficheiro são também o universo dos 360 traços
+    apresentados (após remoção do grupo 13), usado no KPI 'indicadores >5%'.
+    """
+    print("trait_names_pt.json...", file=sys.stderr)
+    pt = {}
+    with open(TRAIT_PT_FILE, newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            pt[slug(row['trait_en'])] = row['trait_pt']
+    out = OUT_DIR / "trait_names_pt.json"
+    out.write_text(json.dumps(pt, ensure_ascii=False, separators=(',', ':')))
+    print(f"  {len(pt)} traços traduzidos → {out}", file=sys.stderr)
+
+
+def build_group_genera():
+    """
+    Para cada amostra e cada grupo discreto, pré-calcula os géneros que mais
+    contribuem (drill-down §8): géneros com consensus_bool=True para >=1 traço
+    booleano do grupo, ordenados pela sua abundância relativa na amostra.
+    Output: group_genera/<sid>.json = {group_id: [[genus, frac], ...top N]}.
+    O grupo 11 (ótimos ambientais, numérico) é excluído.
+    """
+    print("group_genera/<sid>.json...", file=sys.stderr)
+    GROUP_GENERA_DIR.mkdir(exist_ok=True)
+
+    # 1. grupo -> set de nomes de traço discretos (exclui grupo 11 numérico)
+    group_traits = {}   # gid -> set(trait_name)
+    trait_groups = {}   # trait_name -> set(gid)
+    with open(GROUP_SCORES_FILE, newline='') as f:
+        for row in csv.DictReader(f):
+            if row['group_id'] == '11' or row['type'] != 'discreto':
+                continue
+            gid, tr = row['group_id'], row['trait']
+            group_traits.setdefault(gid, set()).add(tr)
+            trait_groups.setdefault(tr, set()).add(gid)
+
+    # 2. abundância de género por amostra (composition_matrix: géneros × amostras)
+    with open(COMP_FILE) as f:
+        reader = csv.reader(f, delimiter='\t')
+        comp_samples = next(reader)[1:]
+        genus_abund = {sid: {} for sid in comp_samples}   # sid -> {genus: frac}
+        for row in reader:
+            genus = row[0]
+            for sid, v in zip(comp_samples, row[1:]):
+                fv = float(v)
+                if fv > 0:
+                    genus_abund[sid][genus] = fv
+
+    # 3. percorrer os taxon_trait_annotations por amostra
+    files = sorted(PER_SAMPLE_DIR.glob("*_taxon_trait_annotations.tsv"))
+    written = 0
+    for fp in files:
+        sid = sample_prefix(fp.name)
+        abund = genus_abund.get(sid, {})
+        genus_groups = {}   # genus -> set(gid) positivos
+        with open(fp) as f:
+            reader = csv.reader(f, delimiter='\t')
+            header = next(reader)
+            ci = {c: i for i, c in enumerate(header)}
+            i_name, i_trait = ci['taxon_name'], ci['trait']
+            i_bool = ci['consensus_bool']
+            for r in reader:
+                if r[i_bool] != 'True':
+                    continue
+                gids = trait_groups.get(r[i_trait])
+                if not gids:
+                    continue
+                genus_groups.setdefault(r[i_name], set()).update(gids)
+
+        # 4. por grupo: géneros positivos ordenados por abundância
+        #    top = [[genus, frac], ...]; more = nº de géneros contribuintes além do top
+        out_obj = {}
+        for gid in group_traits:
+            ranked = [
+                (g, abund.get(g, 0.0))
+                for g, gs in genus_groups.items() if gid in gs and abund.get(g, 0.0) > 0
+            ]
+            ranked.sort(key=lambda t: t[1], reverse=True)
+            top = [[g, round(a, 6)] for g, a in ranked[:TOP_GENERA_PER_GROUP]]
+            out_obj[gid] = {"top": top, "more": max(0, len(ranked) - len(top))}
+
+        (GROUP_GENERA_DIR / f"{sid}.json").write_text(
+            json.dumps(out_obj, ensure_ascii=False, separators=(',', ':')))
+        written += 1
+
+    print(f"  {written} amostras → {GROUP_GENERA_DIR}", file=sys.stderr)
+
+
 def build_group_scores():
     """
-    Pré-calcula os scores dos 19 grupos interpretativos para as 47 amostras.
+    Pré-calcula os scores dos 18 grupos interpretativos para as amostras da coleção.
     Usa tracos_por_grupo.csv para mapear grupos a traços e trait_names.json
     para converter display-name -> slug.
     Guardado em group_scores.json para cálculo dinâmico de percentis no browser.
@@ -244,5 +345,7 @@ if __name__ == "__main__":
     build_compositions()
     build_pcoa()
     build_traits()
+    build_trait_names_pt()
     build_group_scores()
+    build_group_genera()
     print("\nDone. Ficheiros em app/data/", file=sys.stderr)

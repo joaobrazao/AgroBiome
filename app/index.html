@@ -7,140 +7,182 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #f5f6fa;
-    --card: #ffffff;
-    --border: #e0e3ea;
-    --accent: #2563eb;
-    --accent2: #16a34a;
-    --text: #1e2330;
-    --muted: #6b7280;
-    --warn: #b45309;
-    --radius: 8px;
+    --bg:#e5e8ef; --card:#ffffff; --border:#dfe3ec; --accent:#1d4ed8; --accent2:#15803d;
+    --ink:#0f2a43; --text:#161b26; --muted:#5f6775; --warn:#b45309; --radius:10px;
+    --shadow:0 1px 2px rgba(20,30,55,.05), 0 4px 14px rgba(20,30,55,.05);
+    --teal-baixo-bg:#9FE1CB; --teal-baixo-fg:#04342C;
+    --teal-mod-bg:#1D9E75;   --teal-mod-fg:#04342C;
+    --teal-alto-bg:#085041;  --teal-alto-fg:#E1F5EE;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
-  a { color: var(--accent); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg);
+    color:var(--text); font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+  a { color:var(--accent); }
+  header { background:var(--card); border-bottom:3px solid var(--ink); padding:24px 32px; }
+  header h1 { font-size:22px; font-weight:700; letter-spacing:-.02em; color:var(--ink); }
+  header p { color:var(--muted); font-size:13px; margin-top:6px; }
+  main { max-width:1080px; margin:28px auto; padding:0 20px; display:flex; flex-direction:column; gap:24px; }
 
-  header { background: var(--card); border-bottom: 1px solid var(--border); padding: 20px 28px; }
-  header h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
-  header p  { color: var(--muted); font-size: 13px; margin-top: 4px; }
-
-  main { max-width: 1100px; margin: 28px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 24px; }
-
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
-  .card h2 { font-size: 11px; font-weight: 600; margin-bottom: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px 26px; box-shadow:var(--shadow); }
+  .card h2 { font-size:11px; font-weight:700; margin-bottom:16px; color:var(--ink);
+    text-transform:uppercase; letter-spacing:.1em; }
+  .card .sub { font-size:12px; color:var(--muted); margin:-8px 0 16px; }
 
   /* Upload */
-  .upload-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 12px; color: var(--muted); }
-  .field input[type="file"] { border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 13px; background: var(--bg); cursor: pointer; }
-  .field input[type="number"] { width: 60px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 13px; }
-  button#analyze-btn {
-    background: var(--accent); color: #fff; border: none; border-radius: 6px;
-    padding: 8px 20px; font-size: 13px; font-weight: 500; cursor: pointer;
+  .upload-row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+  .field { display:flex; flex-direction:column; gap:4px; }
+  .field label { font-size:12px; color:var(--muted); }
+  .field input[type="file"] { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg); cursor:pointer; }
+  .field input[type="number"] { width:64px; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; }
+  .btn { background:var(--accent); color:#fff; border:none; border-radius:6px; padding:9px 18px;
+    font-size:13px; font-weight:500; cursor:pointer; }
+  .btn:hover:not(:disabled) { background:#1d4ed8; }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .btn.ghost { background:#eef2fb; color:var(--accent); }
+  .btn.ghost:hover:not(:disabled) { background:#e2e9f9; }
+  #status { font-size:13px; padding:8px 12px; border-radius:6px; margin-top:12px; }
+  #status.info  { background:#eff6ff; color:var(--accent); }
+  #status.error { background:#fef3c7; color:var(--warn); }
+  #status.ok    { background:#f0fdf4; color:var(--accent2); }
+  #status.hidden { display:none; }
+
+  /* Faixa persistente inferido vs medido */
+  .framing-bar { display:flex; gap:10px; align-items:flex-start; background:#fffbeb;
+    border:1px solid #fde68a; border-radius:var(--radius); padding:12px 16px; font-size:12.5px; color:#78350f; }
+  .framing-bar b { font-weight:600; }
+
+  /* KPIs */
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+  @media (max-width:820px) { .kpis { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:460px) { .kpis { grid-template-columns:1fr; } }
+  .kpi { border:1px solid var(--border); border-radius:8px; padding:16px 18px; background:#fafbfd; }
+  .kpi .k-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .kpi .k-value { font-size:26px; font-weight:700; margin-top:5px; letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+  .kpi .k-note { font-size:11px; color:var(--muted); margin-top:3px; }
+  .kpi-env { margin-top:7px; display:flex; flex-direction:column; gap:4px; }
+  .kpi-env .er { display:flex; justify-content:space-between; font-size:12px; gap:8px; }
+  .kpi-env .er span:first-child { color:var(--muted); }
+  .kpi-env .er b { font-weight:600; }
+
+  /* Heatmap de chips — escala sequencial teal */
+  .chips-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .chips-head .ttl { font-size:11px; font-weight:700; color:var(--ink); text-transform:uppercase; letter-spacing:.1em; }
+  .scale-leg { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; color:var(--muted); }
+  .scale-leg span.sw { width:13px; height:13px; border-radius:3px; display:inline-block; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { display:inline-flex; align-items:center; font-size:11.5px; padding:5px 11px;
+    border-radius:6px; border:1px solid transparent; }
+  .chip.baixo    { background:var(--teal-baixo-bg); color:var(--teal-baixo-fg); }
+  .chip.moderado { background:var(--teal-mod-bg);   color:var(--teal-mod-fg); }
+  .chip.alto     { background:var(--teal-alto-bg);  color:var(--teal-alto-fg); }
+  .chip.abs      { background:#eef2f7; color:#475569; border-color:#dfe3ec; }
+
+  /* Teias */
+  .radars { display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:start; }
+  @media (max-width:760px) { .radars { grid-template-columns:1fr; } }
+  .radar-block h3 { font-size:13px; font-weight:600; text-align:center; margin-bottom:2px; }
+  .radar-block p { font-size:11px; color:var(--muted); text-align:center; }
+  .radar-wrap { display:flex; justify-content:center; }
+
+  /* Grupos interpretados */
+  .groups-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px; }
+  .group-item { border:1px solid var(--border); border-radius:6px; padding:14px 16px; }
+  .group-header { display:flex; align-items:baseline; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+  .group-name { font-weight:600; font-size:14px; }
+  .group-tech { font-size:11px; color:var(--muted); font-style:italic; }
+  .level-pill { font-size:10px; font-weight:600; padding:2px 9px; border-radius:10px;
+    letter-spacing:.04em; text-transform:uppercase; margin-left:auto; }
+  .level-pill.baixo    { background:var(--teal-baixo-bg); color:var(--teal-baixo-fg); }
+  .level-pill.moderado { background:var(--teal-mod-bg);   color:var(--teal-mod-fg); }
+  .level-pill.alto     { background:var(--teal-alto-bg);  color:var(--teal-alto-fg); }
+  .group-phrase { font-size:13px; color:#374151; line-height:1.55; }
+  .group-note { font-size:11px; color:var(--warn); font-style:italic; margin-top:6px; }
+  .drill { margin-top:10px; }
+  .drill summary { cursor:pointer; font-size:12px; color:var(--accent); }
+  .drill-table { width:100%; border-collapse:collapse; margin-top:8px; }
+  .drill-table td { padding:4px 8px; border-bottom:1px solid var(--border); font-size:12px; }
+  .drill-table tr:last-child td { border-bottom:none; }
+  .drill-table td.gen { font-style:italic; }
+  .g-pct { text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .g-more { color:var(--muted); font-style:italic; }
+
+  /* Composição observada */
+  .obs { display:grid; grid-template-columns:340px 1fr; gap:24px; align-items:center; }
+  @media (max-width:680px) { .obs { grid-template-columns:1fr; } }
+  .legend { display:flex; flex-direction:column; gap:6px; font-size:12px; }
+  .legend .row { display:flex; align-items:center; gap:8px; }
+  .legend .sw { width:12px; height:12px; border-radius:3px; flex:0 0 auto; }
+  .div-line { margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+  .div-pill { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px;
+    border-radius:10px; background:#eff6ff; color:#1e40af; }
+
+  /* Tabelas genéricas */
+  table.std { width:100%; border-collapse:collapse; font-size:13px; }
+  table.std th { text-align:left; padding:6px 10px; font-weight:500; color:var(--muted);
+    border-bottom:1px solid var(--border); font-size:11px; text-transform:uppercase; }
+  table.std td { padding:6px 10px; border-bottom:1px solid var(--border); }
+  table.std tr:last-child td { border-bottom:none; }
+  .bar-wrap { display:flex; align-items:center; gap:8px; }
+  .bar { height:7px; border-radius:4px; background:var(--accent); min-width:1px; }
+  #trait-search { width:100%; border:1px solid var(--border); border-radius:6px; padding:7px 10px; font-size:13px; margin-bottom:12px; }
+  #trait-body tr.hidden { display:none; }
+  .band { font-weight:600; }
+  .band.acido { color:#b45309; } .band.lig_acido { color:#d97706; }
+  .band.neutro { color:#16a34a; } .band.alcalino { color:#2563eb; }
+  .band.psicro { color:#2563eb; } .band.meso { color:#16a34a; } .band.termo { color:#dc2626; }
+  .band.sal_baixa { color:#16a34a; } .band.sal_mod { color:#d97706; } .band.sal_alta { color:#dc2626; }
+
+  /* Evidência PCoA */
+  .evi-grid { display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start; }
+  @media (max-width:760px) { .evi-grid { grid-template-columns:1fr; } }
+  #pcoa-wrap { height:320px; position:relative; }
+  tr.highlight td { background:#eff6ff; }
+  .pcoa-note { font-size:11px; color:var(--muted); margin-top:8px; }
+
+  /* Rodapé */
+  footer.screen { max-width:1080px; margin:0 auto 40px; padding:0 20px; display:flex;
+    justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+    font-size:11.5px; color:var(--muted); }
+  .demo-tag { display:inline-block; background:#fef3c7; color:#92400e; font-size:10px; font-weight:600;
+    padding:2px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:.06em; margin-left:8px; }
+
+  #results-section { display:none; flex-direction:column; gap:24px; }
+  .print-only { display:none; }
+
+  /* Impressão / Exportação PDF */
+  @media print {
+    :root { --bg:#fff; }
+    body { background:#fff; }
+    .no-print, #upload-card, #trait-search, .btn, footer.screen { display:none !important; }
+    .print-only { display:block; }
+    main { margin:0 auto; max-width:100%; }
+    .card { box-shadow:none; border:1px solid #ccc; break-inside:avoid; }
+    header { border-bottom:2px solid #000; }
+    .print-head { padding:0 20px; margin-bottom:8px; font-size:11px; color:#333; }
+    .print-head h2 { font-size:14px; color:#000; margin-bottom:2px; letter-spacing:0; text-transform:none; }
+    .print-foot { padding:12px 20px 0; font-size:10px; color:#555; border-top:1px solid #ccc; margin-top:16px; }
+    #trait-body tr.hidden { display:table-row; }
   }
-  button#analyze-btn:disabled { opacity: .5; cursor: default; }
-  button#analyze-btn:hover:not(:disabled) { background: #1d4ed8; }
-
-  #status { font-size: 13px; padding: 8px 12px; border-radius: 6px; margin-top: 8px; }
-  #status.info  { background: #eff6ff; color: var(--accent); }
-  #status.error { background: #fef3c7; color: var(--warn); }
-  #status.ok    { background: #f0fdf4; color: var(--accent2); }
-  #status.hidden { display: none; }
-
-  /* Two-column layout for plot + neighbors */
-  .two-col { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
-  @media (max-width: 750px) { .two-col { grid-template-columns: 1fr; } }
-
-  #pcoa-wrap { height: 360px; position: relative; }
-
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; padding: 6px 10px; font-weight: 500; color: var(--muted); border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; }
-  td { padding: 6px 10px; border-bottom: 1px solid var(--border); }
-  tr:last-child td { border-bottom: none; }
-  tr.highlight td { background: #eff6ff; }
-
-  /* Trait table */
-  #traits-card { display: none; }
-  .trait-bar-wrap { display: flex; align-items: center; gap: 6px; }
-  .trait-bar { height: 8px; border-radius: 4px; background: var(--accent); min-width: 1px; }
-  .trait-bar.low { background: #d1d5db; }
-  .badge { font-size: 11px; padding: 1px 6px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); white-space: nowrap; }
-  .badge.numeric { background: #f0fdf4; border-color: #86efac; color: #15803d; }
-  .badge.boolean { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
-  .badge.categ   { background: #faf5ff; border-color: #c4b5fd; color: #6d28d9; }
-  .badge.none    { background: var(--bg); color: var(--muted); }
-
-  #trait-search { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 13px; margin-bottom: 10px; }
-  #trait-body tr.hidden { display: none; }
-
-  .pcoa-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
-  #results-section { display: none; }
-
-  /* Interpretive layer */
-  .framing { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px;
-             padding: 12px 16px; margin-bottom: 18px; font-size: 13px; }
-  .framing > p { font-style: italic; color: var(--muted); margin-bottom: 6px; }
-  .framing details summary { cursor: pointer; color: var(--accent); font-size: 12px; }
-  .framing details p { margin-top: 8px; color: #374151; line-height: 1.6; font-size: 12px; }
-  .caveat-small { font-size: 11px; color: var(--warn); margin-bottom: 16px; }
-
-  .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
-  .group-item { border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
-  .group-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-  .group-name { font-weight: 600; font-size: 14px; }
-  .group-tech { font-size: 11px; color: var(--muted); }
-  .level-pill { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 10px;
-                letter-spacing: .04em; text-transform: uppercase; margin-left: auto; }
-  .level-pill.baixo    { background: #fef3c7; color: #92400e; }
-  .level-pill.moderado { background: #f0fdf4; color: #166534; }
-  .level-pill.alto     { background: #eff6ff; color: #1e40af; }
-  .group-phrase { font-size: 13px; color: #374151; line-height: 1.5; margin-bottom: 6px; }
-  .group-note { font-size: 11px; color: var(--warn); font-style: italic; margin-top: 4px; }
-  .group-pct { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-  /* G6 table */
-  .g6-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .g6-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
-  .g6-table tr:last-child td { border-bottom: none; }
-  .g6-label { font-weight: 500; width: 120px; }
-  .g6-band { font-weight: 600; }
-  .g6-band.acido        { color: #b45309; }
-  .g6-band.lig_acido    { color: #d97706; }
-  .g6-band.neutro       { color: #16a34a; }
-  .g6-band.alcalino     { color: #2563eb; }
-  .g6-band.psicorofila  { color: #2563eb; }
-  .g6-band.mesofila     { color: #16a34a; }
-  .g6-band.termofila    { color: #dc2626; }
-  .g6-band.salinidade_baixa { color: #16a34a; }
-  .g6-band.salinidade_mod   { color: #d97706; }
-  .g6-band.salinidade_alta  { color: #dc2626; }
-  .group-item-wide { grid-column: 1 / -1; }
-  .band-acido     { color: #b45309; font-weight:600; }
-  .band-lig-acido { color: #d97706; font-weight:600; }
-  .band-neutro    { color: #16a34a; font-weight:600; }
-  .band-alcalino  { color: #2563eb; font-weight:600; }
-  .band-psicro    { color: #2563eb; font-weight:600; }
-  .band-meso      { color: #16a34a; font-weight:600; }
-  .band-termo     { color: #dc2626; font-weight:600; }
-  .band-sal-baixa { color: #16a34a; font-weight:600; }
-  .band-sal-mod   { color: #d97706; font-weight:600; }
-  .band-sal-alta  { color: #dc2626; font-weight:600; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>AgroBiome Digital — Perfil Funcional do Microbioma do Solo</h1>
-  <p>Inferir traços funcionais por comparação com amostras de solo de vinha</p>
+  <p>Inferir traços funcionais por comparação com a coleção piloto de viticultura</p>
 </header>
+
+<!-- Cabeçalho de impressão (só em PDF) -->
+<div class="print-only print-head">
+  <h2>AppGenomics · Perfil Funcional do Microbioma do Solo</h2>
+  <div id="print-head-meta"></div>
+</div>
 
 <main>
 
-  <!-- Upload card -->
-  <div class="card">
+  <!-- Upload -->
+  <div class="card no-print" id="upload-card">
     <h2>Nova amostra</h2>
     <div class="upload-row">
       <div class="field">
@@ -149,553 +191,648 @@
       </div>
       <div class="field">
         <label>Amostras semelhantes a mostrar</label>
-        <input type="number" id="k-input" value="3" min="1" max="10">
+        <input type="number" id="k-input" value="5" min="1" max="10">
       </div>
-      <button id="analyze-btn" disabled>Analisar</button>
+      <button class="btn" id="analyze-btn" disabled>Analisar</button>
+      <button class="btn ghost" id="example-btn" disabled>Carregar amostra de exemplo</button>
     </div>
     <div id="status" class="hidden"></div>
   </div>
 
-  <!-- Results -->
+  <!-- Resultados -->
   <div id="results-section">
 
-    <!-- PCoA + neighbors -->
-    <div class="two-col">
-      <div class="card" id="pcoa-card">
-        <h2>Ordenação (PCoA — Bray-Curtis, PC1/PC2)</h2>
-        <div id="pcoa-wrap"><canvas id="pcoa-chart"></canvas></div>
-        <p class="pcoa-note" id="pcoa-note">Posição da nova amostra = centróide dos vizinhos</p>
-      </div>
+    <!-- §4 Faixa persistente -->
+    <div class="framing-bar">
+      <span>&#9888;</span>
+      <span>Os indicadores exprimem o <b>potencial microbiano inferido</b> a partir da composição da
+      comunidade — leitura comparativa face à coleção, <b>não</b> uma medição química ou de atividade do
+      solo. A plataforma descreve o estado microbiano; não constitui recomendação agronómica.</span>
+    </div>
 
-      <div class="card" id="neighbors-card">
-        <h2>Amostras mais semelhantes</h2>
-        <table id="neighbors-table">
-          <thead><tr><th>#</th><th>Amostra</th><th>Distância (Bray-Curtis)</th></tr></thead>
-          <tbody id="neighbors-body"></tbody>
-        </table>
+    <!-- §5 Painel-sumário -->
+    <div class="card">
+      <h2>Sumário da amostra</h2>
+      <div class="kpis" id="kpis"></div>
+      <div class="chips-head">
+        <span class="ttl">Níveis por grupo (vista rápida) — 18 grupos</span>
+        <span class="scale-leg">baixo
+          <span class="sw" style="background:var(--teal-baixo-bg)"></span>
+          <span class="sw" style="background:var(--teal-mod-bg)"></span>
+          <span class="sw" style="background:var(--teal-alto-bg)"></span> alto</span>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <!-- §7 Teias -->
+    <div class="card">
+      <h2>Assinatura funcional — duas teias</h2>
+      <p class="sub">Cada eixo é a posição relativa da amostra face à coleção (centro = fundo da distribuição, bordo = topo).</p>
+      <div class="radars">
+        <div class="radar-block">
+          <h3>Ciclos biogeoquímicos</h3>
+          <div class="radar-wrap" id="radar1"></div>
+        </div>
+        <div class="radar-block">
+          <h3>Matéria orgânica, função e condição</h3>
+          <div class="radar-wrap" id="radar2"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Interpretive panel -->
-    <div class="card" id="interpret-card" style="display:none">
+    <!-- §8 Perfil interpretado -->
+    <div class="card">
       <h2>Perfil funcional interpretado</h2>
-      <div class="framing">
-        <p>Indicadores do potencial microbiano do solo, inferidos da composição da comunidade. Leitura comparativa, não medição.</p>
-        <details>
-          <summary>Como interpretar</summary>
-          <p>Cada indicador resulta da composição microbiana da amostra, estimada por sequenciação genética — reflete o <em>potencial</em> da comunidade, não uma medição direta da química ou da atividade do solo. Os rótulos (baixo / moderado / alto) são relativos à coleção de amostras analisadas: "alto" significa acima do habitual nas parcelas semelhantes, não um valor absoluto. Esta ferramenta descreve o estado microbiano; não constitui recomendação agronómica.</p>
-        </details>
-      </div>
-      <p class="caveat-small">⚠ Coleção com 47 amostras — percentis provisórios.</p>
+      <p class="sub">Leitura em linguagem corrente, com o termo técnico entre parênteses. Abra cada grupo para ver os géneros que mais contribuem.</p>
       <div class="groups-grid" id="interpret-groups"></div>
     </div>
 
-    <!-- Tabela A — Indicadores funcionais -->
-    <div class="card" id="traits-card">
-      <h2>Indicadores funcionais</h2>
+    <!-- §9 Composição observada -->
+    <div class="card">
+      <h2>Composição da comunidade (observada)</h2>
+      <p class="sub">O que está presente na amostra — distinto do potencial funcional inferido acima.</p>
+      <div class="obs">
+        <div class="radar-wrap" id="sunburst"></div>
+        <div>
+          <div class="legend" id="sunburst-legend"></div>
+          <div class="div-line" id="diversity-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- §10 Indicadores funcionais -->
+    <div class="card">
+      <h2>Indicadores funcionais (traço a traço)</h2>
+      <p class="sub">Fração da comunidade que possui cada função. Camada de maior detalhe — pesquise para localizar um traço.</p>
       <input type="text" id="trait-search" placeholder="Filtrar indicadores…">
-      <table id="traits-table">
-        <thead><tr><th style="width:55%">Indicador</th><th style="width:45%">% da comunidade</th></tr></thead>
+      <table class="std" id="traits-table">
+        <thead><tr><th style="width:58%">Indicador</th><th>% da comunidade</th></tr></thead>
         <tbody id="trait-body"></tbody>
       </table>
     </div>
 
-    <!-- Tabela B — Ótimos ambientais -->
-    <div class="card" id="env-card" style="display:none">
-      <h2>Ótimos ambientais</h2>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Valores inferidos da comunidade (preferência ambiental dos microrganismos presentes) — não são medições do solo.</p>
-      <table id="env-table">
-        <thead><tr><th style="width:40%">Indicador</th><th style="width:60%">Valor estimado</th></tr></thead>
-        <tbody id="env-body"></tbody>
-      </table>
+    <!-- §11 Ótimos ambientais -->
+    <div class="card">
+      <h2>Ótimos ambientais (preferência da comunidade)</h2>
+      <p class="sub">Inferidos da preferência ambiental dos microrganismos presentes — escala absoluta com bandas de referência, não medição do solo.</p>
+      <table class="std"><tbody id="env-body"></tbody></table>
+    </div>
+
+    <!-- §12 Evidência do match -->
+    <div class="card">
+      <h2>Evidência do match (método)</h2>
+      <p class="sub">O perfil funcional acima é importado das amostras mais semelhantes da coleção, por proximidade composicional (Bray-Curtis). Os traços nunca entram no cálculo do match.</p>
+      <div class="evi-grid">
+        <div>
+          <div id="pcoa-wrap"><canvas id="pcoa-chart"></canvas></div>
+          <p class="pcoa-note" id="pcoa-note"></p>
+        </div>
+        <div>
+          <table class="std" id="neighbors-table">
+            <thead><tr><th>#</th><th>Amostra</th><th>Distância</th></tr></thead>
+            <tbody id="neighbors-body"></tbody>
+          </table>
+          <p style="font-size:11px;color:var(--muted);margin-top:10px">Amostras mais semelhantes da coleção.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rodapé de impressão (só em PDF) -->
+    <div class="print-only print-foot">
+      AppGenomics · projeto Vouchers para Startups (PRR/IAPMEI) · amostras processadas com Kraken2/Bracken
+      e perfil funcional inferido com metaTraits.
     </div>
 
   </div><!-- /results-section -->
 
 </main>
 
-<script>
-// ---------------------------------------------------------------------------
-// Data loading
-// ---------------------------------------------------------------------------
-let compData   = null;   // {genera, samples, matrix}
-let pcoaData   = null;   // {samples, pc1, pc2, pct_var}
-let traitNames = null;   // {slug: displayName}
-let groupScores = null;  // {samples, g1..g5, g6_ph, g6_temp, g6_sal}
-let pcoaChart  = null;
+<footer class="screen">
+  <span id="footer-text">AppGenomics · projeto Vouchers para Startups (PRR/IAPMEI) · amostras processadas com Kraken2/Bracken e perfil funcional inferido com metaTraits.</span>
+  <button class="btn" id="export-btn" onclick="window.print()" style="display:none">Exportar PDF</button>
+</footer>
 
-async function loadStaticData() {
-  setStatus('A carregar dados de referência…', 'info');
+<script>
+// ===========================================================================
+// Estado / dados estáticos
+// ===========================================================================
+let compData=null, pcoaData=null, groupScores=null, traitNames=null, traitNamesPt=null;
+let collShannon=null;     // Shannon de cada amostra da coleção
+let pcoaChart=null;
+const COLLECTION_SIZE = 252;
+
+const EXAMPLE_SID = '10';   // amostra de exemplo (§1) — não excluída da régua (§15)
+
+async function loadStaticData(){
+  setStatus('A carregar dados de referência…','info');
   try {
-    [compData, pcoaData, traitNames, groupScores] = await Promise.all([
-      fetch('data/compositions.json').then(r => r.json()),
-      fetch('data/pcoa.json').then(r => r.json()),
-      fetch('data/trait_names.json').then(r => r.json()),
-      fetch('data/group_scores.json').then(r => r.json()),
+    [compData,pcoaData,groupScores,traitNames,traitNamesPt] = await Promise.all([
+      fetch('data/compositions.json').then(r=>r.json()),
+      fetch('data/pcoa.json').then(r=>r.json()),
+      fetch('data/group_scores.json').then(r=>r.json()),
+      fetch('data/trait_names.json').then(r=>r.json()),
+      fetch('data/trait_names_pt.json').then(r=>r.json()),
     ]);
-    if (pcoaData.pct_var) {
-      const [p1, p2] = pcoaData.pct_var;
-      const fmt = v => v.toFixed(1).replace('.', ',');
-      document.getElementById('pcoa-note').textContent =
-        `PC1 ${fmt(p1)}% · PC2 ${fmt(p2)}% · Posição da nova amostra = centróide dos vizinhos`;
-    }
-    setStatus('Dados carregados. Seleccione um ficheiro Bracken para começar.', 'ok');
-    document.getElementById('analyze-btn').disabled = false;
-  } catch(e) {
-    setStatus('Erro ao carregar dados de referência. Execute via servidor HTTP (python -m http.server 8000) — o protocolo file:// não é suportado.', 'error');
+    collShannon = computeCollectionShannon();
+    setStatus('Dados carregados. Selecione um ficheiro Bracken ou carregue a amostra de exemplo.','ok');
+    document.getElementById('example-btn').disabled=false;
+  } catch(e){
+    setStatus('Erro ao carregar dados de referência. Execute via servidor HTTP (python -m http.server 8000) — o protocolo file:// não é suportado.','error');
   }
 }
 
-// ---------------------------------------------------------------------------
-// Bracken parser (replica of bracken_to_profile.py)
-// ---------------------------------------------------------------------------
-function parseBrackenReport(text) {
-  const genera = {};
-  const stack = []; // [{depth, rank, taxid, name}]
-  let totalReads = null;
-
-  for (const raw of text.split('\n')) {
-    if (!raw.trim()) continue;
-    const parts = raw.split('\t');
-    if (parts.length < 6) continue;
-
-    const readsClade = parseInt(parts[1]);
-    const readsTaxon = parseInt(parts[2]);
-    const rank       = parts[3];
-    const taxid      = parseInt(parts[4]);
-    const nameField  = parts[5];
-
-    if (isNaN(readsClade) || isNaN(readsTaxon) || isNaN(taxid)) continue;
-
-    const nameStripped = nameField.replace(/^ +/, '');
-    const depth = Math.floor((nameField.length - nameStripped.length) / 2);
-
-    if (totalReads === null) totalReads = readsClade;
-
-    while (stack.length > 0 && stack[stack.length - 1].depth >= depth) stack.pop();
-    stack.push({depth, rank, taxid, name: nameStripped});
-
-    if (rank === 'G') {
-      const anc = {};
-      for (let i = 0; i < stack.length - 1; i++) {
-        const e = stack[i];
-        if ('DPCOF'.includes(e.rank) && e.rank.length === 1) anc[e.rank] = e.name;
+// ===========================================================================
+// Parser Bracken (réplica de bracken_to_profile.py) — guarda também a linhagem
+// ===========================================================================
+function parseBrackenReport(text){
+  const genera={}; const stack=[]; let totalReads=null;
+  for(const raw of text.split('\n')){
+    if(!raw.trim()) continue;
+    const parts=raw.split('\t');
+    if(parts.length<6) continue;
+    const readsClade=parseInt(parts[1]), readsTaxon=parseInt(parts[2]);
+    const rank=parts[3], taxid=parseInt(parts[4]), nameField=parts[5];
+    if(isNaN(readsClade)||isNaN(readsTaxon)||isNaN(taxid)) continue;
+    const nameStripped=nameField.replace(/^ +/,'');
+    const depth=Math.floor((nameField.length-nameStripped.length)/2);
+    if(totalReads===null) totalReads=readsClade;
+    while(stack.length>0 && stack[stack.length-1].depth>=depth) stack.pop();
+    stack.push({depth,rank,taxid,name:nameStripped});
+    if(rank==='G'){
+      const anc={};
+      for(let i=0;i<stack.length-1;i++){
+        const e=stack[i];
+        if('DPCOF'.includes(e.rank) && e.rank.length===1) anc[e.rank]=e.name;
       }
-      const slots = ['D','P','C','O','F'].map(r => anc[r] || '');
-      slots.push(nameStripped);
-      genera[taxid] = {taxid, name: nameStripped, reads: readsTaxon};
-    } else if (rank === 'S') {
-      for (let i = stack.length - 2; i >= 0; i--) {
-        if (stack[i].rank === 'G') {
-          if (genera[stack[i].taxid] !== undefined) genera[stack[i].taxid].reads += readsTaxon;
+      genera[taxid]={taxid,name:nameStripped,reads:readsTaxon,
+        lineage:{D:anc.D||'',P:anc.P||'',C:anc.C||'',O:anc.O||'',F:anc.F||''}};
+    } else if(rank==='S'){
+      for(let i=stack.length-2;i>=0;i--){
+        if(stack[i].rank==='G'){
+          if(genera[stack[i].taxid]!==undefined) genera[stack[i].taxid].reads+=readsTaxon;
           break;
         }
       }
     }
   }
-
-  if (!totalReads) throw new Error('Could not determine total reads. Is this a valid Bracken report?');
-  return {totalReads, genera: Object.values(genera)};
+  if(!totalReads) throw new Error('Não foi possível determinar o total de reads. É um relatório Bracken válido?');
+  return {totalReads, genera:Object.values(genera).filter(g=>g.reads>0)};
 }
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // Bray-Curtis + k-NN
-// ---------------------------------------------------------------------------
-function buildQueryVector(parsedGenera, refGenera) {
-  const map = {};
-  let total = 0;
-  for (const g of parsedGenera) {
-    if (g.reads > 0) { map[g.name] = (map[g.name] || 0) + g.reads; total += g.reads; }
-  }
-  if (total === 0) throw new Error('No genus-level reads in the uploaded file.');
-  return refGenera.map(g => (map[g] || 0) / total);
+// ===========================================================================
+function buildQueryVector(parsedGenera, refGenera){
+  const map={}; let total=0;
+  for(const g of parsedGenera){ map[g.name]=(map[g.name]||0)+g.reads; total+=g.reads; }
+  if(total===0) throw new Error('Sem reads ao nível de género no ficheiro carregado.');
+  return refGenera.map(g=>(map[g]||0)/total);
 }
-
-function brayCurtis(a, b) {
-  let num = 0, den = 0;
-  for (let i = 0; i < a.length; i++) { num += Math.abs(a[i] - b[i]); den += a[i] + b[i]; }
-  return den === 0 ? 0 : num / den;
+function brayCurtis(a,b){
+  let num=0,den=0;
+  for(let i=0;i<a.length;i++){ num+=Math.abs(a[i]-b[i]); den+=a[i]+b[i]; }
+  return den===0?0:num/den;
 }
-
-function findKNN(queryVec, k) {
-  const {genera, samples, matrix} = compData;
-  const n = genera.length;
-  const dists = samples.map((sid, j) => {
-    const ref = new Array(n);
-    for (let i = 0; i < n; i++) ref[i] = matrix[i][j];
-    return {id: sid, dist: brayCurtis(queryVec, ref)};
+function findKNN(queryVec,k){
+  const {genera,samples,matrix}=compData; const n=genera.length;
+  const dists=samples.map((sid,j)=>{
+    const ref=new Array(n);
+    for(let i=0;i<n;i++) ref[i]=matrix[i][j];
+    return {id:sid,dist:brayCurtis(queryVec,ref)};
   });
-  dists.sort((a, b) => a.dist - b.dist);
-  return dists.slice(0, k);
+  dists.sort((a,b)=>a.dist-b.dist);
+  return dists.slice(0,k);
+}
+function pcoaCentroid(neighbors){
+  const idx=Object.fromEntries(pcoaData.samples.map((s,i)=>[s,i]));
+  let s1=0,s2=0;
+  for(const n of neighbors){ s1+=pcoaData.pc1[idx[n.id]]; s2+=pcoaData.pc2[idx[n.id]]; }
+  return {pc1:s1/neighbors.length, pc2:s2/neighbors.length};
 }
 
-function pcoaCentroid(neighbors) {
-  const idx = Object.fromEntries(pcoaData.samples.map((s, i) => [s, i]));
-  let s1 = 0, s2 = 0;
-  for (const n of neighbors) { s1 += pcoaData.pc1[idx[n.id]]; s2 += pcoaData.pc2[idx[n.id]]; }
-  return {pc1: s1 / neighbors.length, pc2: s2 / neighbors.length};
+// ===========================================================================
+// Diversidade — Shannon
+// ===========================================================================
+function shannon(props){
+  let h=0;
+  for(const p of props){ if(p>0) h-=p*Math.log(p); }
+  return h;
 }
-
-// Label de variância explicada (ex: "19,7%") a partir do pcoa.json
-function pcVarLabel(i) {
-  const v = pcoaData && pcoaData.pct_var ? pcoaData.pct_var[i] : null;
-  return v == null ? '—' : v.toFixed(1).replace('.', ',') + '%';
-}
-
-// ---------------------------------------------------------------------------
-// Rendering — PCoA
-// ---------------------------------------------------------------------------
-function renderPCoA(neighbors, newPt) {
-  const neighborIds = new Set(neighbors.map(n => n.id));
-  const refPts = pcoaData.samples
-    .map((sid, i) => ({x: pcoaData.pc1[i], y: pcoaData.pc2[i], sid}))
-    .filter(p => !neighborIds.has(p.sid));
-  const neighborPts = neighbors.map(n => {
-    const i = pcoaData.samples.indexOf(n.id);
-    return {x: pcoaData.pc1[i], y: pcoaData.pc2[i], sid: n.id};
-  });
-
-  const datasets = [
-    {
-      label: `Referência (n=${pcoaData.samples.length})`,
-      data: refPts.map(p => ({x: p.x, y: p.y})),
-      pointRadius: 5, pointHoverRadius: 7,
-      backgroundColor: '#9ca3af', borderColor: '#6b7280', borderWidth: 1,
-    },
-    {
-      label: 'Amostras semelhantes',
-      data: neighborPts.map(p => ({x: p.x, y: p.y, label: p.sid})),
-      pointRadius: 8, pointHoverRadius: 10,
-      backgroundColor: '#2563eb', borderColor: '#1d4ed8', borderWidth: 1.5,
-    },
-    {
-      label: 'Nova amostra',
-      data: [{x: newPt.pc1, y: newPt.pc2}],
-      pointRadius: 10, pointHoverRadius: 12,
-      pointStyle: 'crossRot',
-      backgroundColor: '#dc2626', borderColor: '#dc2626', borderWidth: 2.5,
-    },
-  ];
-
-  if (pcoaChart) pcoaChart.destroy();
-  pcoaChart = new Chart(document.getElementById('pcoa-chart'), {
-    type: 'scatter',
-    data: {datasets},
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: {position: 'top', labels: {boxWidth: 10, font: {size: 11}}},
-        tooltip: {callbacks: {label: ctx => {
-          const raw = ctx.raw;
-          const lbl = raw.label ? `Sample ${raw.label}` : ctx.dataset.label;
-          return `${lbl} (${raw.x.toFixed(3)}, ${raw.y.toFixed(3)})`;
-        }}},
-      },
-      scales: {
-        x: {title: {display: true, text: `PC1 (${pcVarLabel(0)})`, font: {size: 11}}, grid: {color: '#f3f4f6'}},
-        y: {title: {display: true, text: `PC2 (${pcVarLabel(1)})`, font: {size: 11}}, grid: {color: '#f3f4f6'}},
-      },
-    },
+function computeCollectionShannon(){
+  const {genera,samples,matrix}=compData;
+  return samples.map((_,j)=>{
+    const col=[];
+    for(let i=0;i<genera.length;i++) col.push(matrix[i][j]);
+    return shannon(col);
   });
 }
-
-// ---------------------------------------------------------------------------
-// Rendering — neighbors table
-// ---------------------------------------------------------------------------
-function renderNeighbors(neighbors) {
-  const tbody = document.getElementById('neighbors-body');
-  tbody.innerHTML = '';
-  neighbors.forEach((n, i) => {
-    const tr = document.createElement('tr');
-    if (i === 0) tr.classList.add('highlight');
-    tr.innerHTML = `<td>${i+1}</td><td>${n.id}</td><td>${n.dist.toFixed(4)}</td>`;
-    tbody.appendChild(tr);
-  });
+function shannonFromGenera(parsedGenera){
+  let total=0; for(const g of parsedGenera) total+=g.reads;
+  return shannon(parsedGenera.map(g=>g.reads/total));
 }
 
-// ---------------------------------------------------------------------------
-// Configurável — bandas para grupo 11 (cortes por afinar)
-// ---------------------------------------------------------------------------
-const PH_BANDS   = [
-  {max:6.0, cls:'band-acido',     label:'ácido'},
-  {max:6.5, cls:'band-lig-acido', label:'ligeiramente ácido'},
-  {max:7.5, cls:'band-neutro',    label:'neutro'},
-  {max:Infinity, cls:'band-alcalino', label:'alcalino'},
-];
-const TEMP_BANDS = [
-  {max:20,       cls:'band-psicro',  label:'psicrófila'},
-  {max:40,       cls:'band-meso',    label:'mesófila'},
-  {max:Infinity, cls:'band-termo',   label:'termófila'},
-];
-const SAL_BANDS  = [
-  {max:2,        cls:'band-sal-baixa', label:'baixa salinidade'},
-  {max:5,        cls:'band-sal-mod',   label:'salinidade moderada'},
-  {max:Infinity, cls:'band-sal-alta',  label:'salinidade alta'},
-];
-
-function getBand(v, bands) {
-  if (v === null || v === undefined) return {cls:'', label:'sem dados'};
-  return bands.find(b => v < b.max) || bands[bands.length-1];
+// ===========================================================================
+// Régua relativa (percentis)
+// ===========================================================================
+function percentileRank(value,refArray,excludeIdx){
+  const ref=excludeIdx>=0 ? refArray.filter((_,i)=>i!==excludeIdx) : refArray;
+  const below=ref.filter(v=>v<value).length;
+  return below/ref.length;
 }
+function levelFromPct(p){ return p<1/3?'baixo':(p<2/3?'moderado':'alto'); }
 
-// ---------------------------------------------------------------------------
-// Grupos (19 grupos da spec)
-// ---------------------------------------------------------------------------
-const GROUP_DEFS = [
-  {id:'1a', name:'Fixação de azoto', tech:'diazotrofia, nitrogenase',
-   phrases:{baixo:'Poucos microrganismos capazes de captar azoto do ar — habitual, é sempre uma minoria (fixação de azoto abaixo do habitual).',moderado:'Capacidade de captar azoto do ar dentro do habitual.',alto:'Mais microrganismos do que o habitual capazes de captar azoto do ar (fixação de azoto elevada).'}},
-  {id:'1b', name:'Nitrificação', tech:'nitrificação, oxidação de amónia',
+// ===========================================================================
+// Bandas absolutas (grupo 11 — cortes por afinar)
+// ===========================================================================
+const PH_BANDS=[{max:6.0,cls:'acido',label:'ácido'},{max:6.5,cls:'lig_acido',label:'ligeiramente ácido'},
+  {max:7.5,cls:'neutro',label:'neutro'},{max:Infinity,cls:'alcalino',label:'alcalino'}];
+const TEMP_BANDS=[{max:20,cls:'psicro',label:'psicrófila'},{max:40,cls:'meso',label:'mesófila'},
+  {max:Infinity,cls:'termo',label:'termófila'}];
+const SAL_BANDS=[{max:2,cls:'sal_baixa',label:'baixa'},{max:5,cls:'sal_mod',label:'moderada'},
+  {max:Infinity,cls:'sal_alta',label:'alta'}];
+function getBand(v,bands){ if(v==null) return {cls:'',label:'sem dados'}; return bands.find(b=>v<b.max)||bands[bands.length-1]; }
+
+// ===========================================================================
+// Definição dos grupos (18 = 17 discretos + grupo 11)
+// ===========================================================================
+const GROUP_DEFS=[
+  {id:'1a',name:'Fixação de azoto',tech:'diazotrofia, nitrogenase',
+   phrases:{baixo:'Poucos microrganismos capazes de captar azoto do ar — habitual, é sempre uma minoria (potencial de fixação de azoto abaixo do habitual).',moderado:'Capacidade de captar azoto do ar dentro do habitual (potencial de fixação de azoto moderado).',alto:'Mais microrganismos do que o habitual capazes de captar azoto do ar (potencial de fixação de azoto elevado).'}},
+  {id:'1b',name:'Nitrificação',tech:'nitrificação, oxidação de amónia',
    phrases:{baixo:'Conversão de amónio em nitrato abaixo do habitual.',moderado:'Conversão de amónio em nitrato dentro do habitual.',alto:'Conversão de amónio em nitrato acima do habitual — nitrato mais disponível, mas também mais sujeito a lixiviação.'}},
-  {id:'1c', name:'Desnitrificação / redução de nitrato', tech:'desnitrificação, redução de nitrato/nitrito',
-   phrases:{baixo:'Poucos sinais de perda de azoto por via gasosa (desnitrificação abaixo do habitual).',moderado:'Sinais de perda gasosa de azoto dentro do habitual.',alto:'Sinais acima do habitual de perda de azoto por via gasosa — associada a zonas com pouco oxigénio (desnitrificação elevada).'}},
-  {id:'1d', name:'Amonificação / mineralização de azoto', tech:'amonificação, urease',
-   phrases:{baixo:'Libertação de azoto a partir de matéria orgânica abaixo do habitual.',moderado:'Libertação de azoto a partir de matéria orgânica dentro do habitual.',alto:'Libertação de azoto a partir de matéria orgânica acima do habitual.'}},
-  {id:'2',  name:'Arejamento do solo', tech:'equilíbrio aeróbios/anaeróbios',
+  {id:'1c',name:'Desnitrificação / redução de nitrato',tech:'desnitrificação, redução de nitrato/nitrito',
+   phrases:{baixo:'Poucos sinais de perda de azoto por via gasosa (desnitrificação abaixo do habitual).',moderado:'Sinais de perda gasosa de azoto dentro do habitual.',alto:'Sinais acima do habitual de perda de azoto por via gasosa — associada a zonas com pouco oxigénio.'}},
+  {id:'1d',name:'Amonificação / mineralização de azoto',tech:'amonificação, urease',
+   phrases:{baixo:'Libertação de azoto a partir de matéria orgânica abaixo do habitual.',moderado:'Libertação de azoto a partir de matéria orgânica dentro do habitual.',alto:'Forte capacidade de libertar azoto a partir da matéria orgânica do solo (potencial de amonificação/mineralização elevado).'}},
+  {id:'2',name:'Arejamento do solo',tech:'equilíbrio aeróbios/anaeróbios',
    phrases:{baixo:'Circulação de ar abaixo do habitual — compatível com solo mais compactado ou húmido.',moderado:'Circulação de ar dentro do habitual.',alto:'Boa circulação de ar — solo bem arejado e drenado.'}},
-  {id:'3a', name:'Decomposição — fibra e polímeros vegetais', tech:'degradação de celulose, lenhina, quitina, xilano, amido',
-   phrases:{baixo:'Capacidade de decompor fibra vegetal abaixo do habitual.',moderado:'Capacidade de decompor fibra vegetal dentro do habitual.',alto:'Capacidade de decompor fibra vegetal acima do habitual.'},
+  {id:'3a',name:'Decomposição — fibra e polímeros vegetais',tech:'celulose, xilano, amido',
+   phrases:{baixo:'Capacidade de decompor fibra vegetal abaixo do habitual.',moderado:'Capacidade de decompor fibra vegetal dentro do habitual.',alto:'Comunidade bem dotada para decompor fibras e polímeros vegetais (potencial de degradação de celulose/hemicelulose elevado).'},
    note:'A decomposição de celulose e lenhina é feita sobretudo por fungos, invisíveis a este método; um valor baixo não significa ausência.'},
-  {id:'3b', name:'Decomposição — proteínas', tech:'proteólise — caseína, gelatina, colagénio',
+  {id:'3b',name:'Decomposição — proteínas',tech:'proteólise — caseína, gelatina, colagénio',
    phrases:{baixo:'Capacidade de decompor matéria proteica abaixo do habitual.',moderado:'Capacidade de decompor matéria proteica dentro do habitual.',alto:'Capacidade de decompor matéria proteica acima do habitual.'}},
-  {id:'3c', name:'Decomposição — compostos recalcitrantes / poluentes', tech:'degradação de aromáticos, hidrocarbonetos',
+  {id:'3c',name:'Decomposição — compostos recalcitrantes / poluentes',tech:'degradação de aromáticos, hidrocarbonetos',
    phrases:{baixo:'Poucos sinais de capacidade para degradar compostos persistentes ou poluentes.',moderado:'Capacidade de degradar compostos persistentes dentro do habitual.',alto:'Capacidade acima do habitual para degradar compostos persistentes ou poluentes (potencial de biorremediação).'}},
-  {id:'3d', name:'Decomposição — geral', tech:'quimio-heterotrofia, fermentação',
+  {id:'3d',name:'Decomposição — geral',tech:'quimio-heterotrofia, fermentação',
    phrases:{baixo:'Atividade geral de decomposição abaixo do habitual.',moderado:'Atividade geral de decomposição dentro do habitual.',alto:'Atividade geral de decomposição acima do habitual.'}},
-  {id:'4',  name:'Enxofre / sinais de anoxia', tech:'ciclo do enxofre, metanogénese',
+  {id:'4',name:'Enxofre / sinais de anoxia',tech:'ciclo do enxofre',
    phrases:{baixo:'Sem sinais relevantes de zonas sem oxigénio (esperado em solo arejado).',moderado:'Alguns sinais de microambientes sem oxigénio.',alto:'Sinais acima do habitual de zonas sem oxigénio — compatível com encharcamento ou compactação.'}},
-  {id:'5',  name:'Metilotrofia / metanotrofia', tech:'oxidação de metano e metanol',
+  {id:'5',name:'Metilotrofia / metanotrofia',tech:'oxidação de metano e metanol',
    phrases:{baixo:'Poucos microrganismos que consomem metano ou metanol.',moderado:'Consumo de compostos de um carbono dentro do habitual.',alto:'Mais microrganismos do que o habitual que consomem metano/metanol — relevante para mitigar emissões de metano.'}},
-  {id:'6',  name:'Ferro e manganês (redox)', tech:'redução/oxidação de Fe e Mn',
-   phrases:{baixo:'Poucos sinais de transformação de ferro/manganês.',moderado:'Transformação de ferro/manganês dentro do habitual.',alto:'Sinais acima do habitual de transformação de ferro/manganês — indicador de condições de redução, associadas a encharcamento.'}},
-  {id:'7',  name:'Fósforo', tech:'fosfatases — mineralização de P',
+  {id:'6',name:'Ferro e manganês (redox)',tech:'redução/oxidação de Fe e Mn',
+   phrases:{baixo:'Poucos sinais de transformação de ferro/manganês.',moderado:'Capacidade intermédia de oxidar e reduzir ferro e manganês (potencial redox de Fe/Mn moderado).',alto:'Sinais acima do habitual de transformação de ferro/manganês — indicador de condições de redução, associadas a encharcamento.'}},
+  {id:'7',name:'Fósforo',tech:'fosfatases — mineralização de P',
    phrases:{baixo:'Capacidade de disponibilizar fósforo abaixo do habitual.',moderado:'Capacidade de disponibilizar fósforo dentro do habitual.',alto:'Capacidade de disponibilizar fósforo acima do habitual — mineralização ativa de fósforo do solo.'}},
-  {id:'8',  name:'Promoção de crescimento vegetal (PGP)', tech:'auxina, sideróforos, ACC-deaminase, biocontrolo',
-   phrases:{baixo:'Poucos sinais de microrganismos promotores de crescimento vegetal.',moderado:'Presença de promotores de crescimento dentro do habitual.',alto:'Presença acima do habitual de microrganismos promotores de crescimento — produção de hormonas vegetais, captação de ferro e potencial de biocontrolo.'}},
-  {id:'9',  name:'Carbono autotrófico / fototrofia', tech:'fixação de CO₂, fototrofia, RuBisCO',
+  {id:'8',name:'Promoção de crescimento vegetal (PGP)',tech:'auxina, sideróforos, ACC-deaminase',
+   phrases:{baixo:'Poucos sinais de microrganismos promotores de crescimento vegetal.',moderado:'Presença intermédia de traços associados à promoção de crescimento das plantas (potencial PGP moderado).',alto:'Presença acima do habitual de microrganismos promotores de crescimento — hormonas vegetais, captação de ferro e potencial de biocontrolo.'}},
+  {id:'9',name:'Carbono autotrófico / fototrofia',tech:'fixação de CO₂, fototrofia, RuBisCO',
    phrases:{baixo:'Poucos microrganismos que fixam carbono diretamente.',moderado:'Capacidade de fixação de carbono dentro do habitual.',alto:'Mais microrganismos do que o habitual capazes de fixar carbono diretamente (fototrofia/quimioautotrofia).'}},
-  {id:'10', name:'Resistência a stress', tech:'resiliência — esporulação, mobilidade, tolerâncias',
-   phrases:{baixo:'Marcadores de resistência a condições adversas abaixo do habitual.',moderado:'Marcadores de resistência dentro do habitual.',alto:'Marcadores de resistência acima do habitual — comunidade mais preparada para seca ou perturbação.'}},
-  {id:'12', name:'Agregação / armazenamento', tech:'exopolissacáridos, PHB/PHA',
+  {id:'10',name:'Resistência a stress',tech:'resiliência — esporulação, mobilidade, tolerâncias',
+   phrases:{baixo:'Marcadores de resistência a condições adversas abaixo do habitual.',moderado:'Marcadores de resistência dentro do habitual.',alto:'Comunidade com boa tolerância a seca, salinidade e oscilações (potencial de resiliência ao stress elevado).'}},
+  {id:'12',name:'Agregação / armazenamento',tech:'exopolissacáridos, PHB/PHA',
    phrases:{baixo:'Produção de substâncias que agregam o solo abaixo do habitual.',moderado:'Produção de substâncias que agregam o solo dentro do habitual.',alto:'Produção acima do habitual de substâncias que ajudam a estruturar o solo e a reter água.'}},
-  {id:'13', name:'Metabolismo geral', special:'generic',
-   phrase:'Outros marcadores metabólicos da comunidade, sem leitura agronómica específica; apresentados a título informativo.'},
-  {id:'11', name:'Ótimos ambientais da comunidade', special:'absolute'},
 ];
 
-// ---------------------------------------------------------------------------
-// Régua relativa
-// ---------------------------------------------------------------------------
-function percentileRank(value, refArray, excludeIdx) {
-  const ref = refArray.filter((_, i) => i !== excludeIdx);
-  const below = ref.filter(v => v < value).length;
-  return below / ref.length;
+// Chips (18) e teias — ordem e rótulos curtos
+const CHIP_DEFS=[
+  {id:'1a',l:'N-fixação'},{id:'1b',l:'N-nitrificação'},{id:'1c',l:'N-desnitrif.'},{id:'1d',l:'N-amonificação'},
+  {id:'4',l:'Enxofre/anoxia'},{id:'6',l:'Fe/Mn redox'},{id:'5',l:'Metilotrofia'},{id:'9',l:'C autotrófico'},
+  {id:'7',l:'Fósforo'},{id:'3a',l:'Decomp. fibras'},{id:'3b',l:'Decomp. proteínas'},{id:'3c',l:'Decomp. xenobiót.'},
+  {id:'3d',l:'Decomp. geral'},{id:'8',l:'PGP'},{id:'10',l:'Stress'},{id:'2',l:'Arejamento'},
+  {id:'11',l:'Ótimos ambientais',abs:true},{id:'12',l:'Agregação'},
+];
+const RADAR1=[['1a','N: fixação'],['1b','N: nitrificação'],['1c','N: desnitrif.'],['1d','N: amonificação'],
+  ['4','Enxofre/anoxia'],['6','Fe/Mn redox'],['5','Metilotrofia'],['9','C autotróf.'],['7','Fósforo']];
+const RADAR2=[['3a','Decomp. fibras'],['3b','Decomp. proteínas'],['3c','Decomp. xenobiót.'],['3d','Decomp. geral'],
+  ['8','PGP'],['10','Stress'],['2','Arejamento'],['12','Agregação']];
+
+// ===========================================================================
+// Helpers de tradução / nome de traço
+// ===========================================================================
+function traitLabel(slug){ return traitNamesPt[slug] || traitNames[slug] || slug.replace(/_/g,' '); }
+
+// ===========================================================================
+// Render — KPIs (§5.1)
+// ===========================================================================
+function renderKPIs(ctx){
+  const {parsedGenera, queryShannon, featureObj} = ctx;
+  const nGenera=parsedGenera.length;
+  const divPct=percentileRank(queryShannon, collShannon, ctx.excludeShannonIdx);
+  const divLvl=levelFromPct(divPct); const divLabel={baixo:'Baixa',moderado:'Moderada',alto:'Alta'}[divLvl];
+
+  // indicadores >5% sobre o universo dos 360 traços apresentados (chaves de traitNamesPt)
+  let n5=0;
+  for(const slug of Object.keys(traitNamesPt)){
+    const v=featureObj[slug+'.true'];
+    if(v!==undefined && v>0.05) n5++;
+  }
+  const ph=featureObj['ph_growth.mean'], temp=featureObj['temperature_growth.mean'], sal=featureObj['salinity_growth.mean'];
+  const phB=getBand(ph,PH_BANDS), tempB=getBand(temp,TEMP_BANDS), salB=getBand(sal,SAL_BANDS);
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="k-label">Géneros detetados</div>
+      <div class="k-value">${nGenera}</div><div class="k-note">após colapso ao nível de género</div></div>
+    <div class="kpi"><div class="k-label">Diversidade da comunidade</div>
+      <div class="k-value">${divLabel}</div>
+      <div class="k-note">Shannon ${fmt(queryShannon,2)} · percentil ${Math.round(divPct*100)}º na coleção</div></div>
+    <div class="kpi"><div class="k-label">Indicadores funcionais</div>
+      <div class="k-value">${n5}</div><div class="k-note">traços presentes em &gt;5% da comunidade</div></div>
+    <div class="kpi"><div class="k-label">Ótimos ambientais</div>
+      <div class="kpi-env">
+        <div class="er"><span>pH</span><b class="band ${phB.cls}">${phB.label}</b></div>
+        <div class="er"><span>temperatura</span><b class="band ${tempB.cls}">${tempB.label}</b></div>
+        <div class="er"><span>salinidade</span><b class="band ${salB.cls}">${salB.label}</b></div>
+      </div>
+      <div class="k-note" style="margin-top:7px">preferência inferida · detalhe abaixo</div></div>`;
+  return {divLabel, divPct, queryShannon, nGenera};
 }
-function levelFromPct(pct) {
-  if (pct < 1/3) return 'baixo';
-  if (pct < 2/3) return 'moderado';
-  return 'alto';
+
+// ===========================================================================
+// Régua de grupo (percentil do score do match na coleção)
+// ===========================================================================
+function groupPct(gid, matchIdx, excludeIdx){
+  const ref=groupScores.groups[gid];
+  if(!ref) return null;
+  return percentileRank(ref[matchIdx], ref, excludeIdx);
 }
 
-// ---------------------------------------------------------------------------
-// Rendering — trait profile (Tabela A + Tabela B)
-// ---------------------------------------------------------------------------
-function renderTraits(featureObj) {
-  const rowsA = []; // discrete (non-mean) features
-  const rowsB = []; // numeric (.mean) features
-
-  // Group by slug
-  const bySlug = {};
-  for (const [key, val] of Object.entries(featureObj)) {
-    const dot = key.indexOf('.');
-    const slug = key.slice(0, dot);
-    const state = key.slice(dot + 1);
-    if (!bySlug[slug]) bySlug[slug] = {};
-    bySlug[slug][state] = val;
-  }
-
-  for (const [slug, states] of Object.entries(bySlug)) {
-    const name = traitNames[slug] || slug.replace(/_/g, ' ');
-    if ('mean' in states) {
-      rowsB.push({name, value: states.mean});
-    } else {
-      const trueFrac = states.true || 0;
-      if (trueFrac > 0) rowsA.push({name, pct: (trueFrac * 100).toFixed(1), sort: trueFrac});
+// ===========================================================================
+// Render — chips (§5.2)
+// ===========================================================================
+function renderChips(matchIdx, excludeIdx){
+  const el=document.getElementById('chips'); el.innerHTML='';
+  for(const c of CHIP_DEFS){
+    const div=document.createElement('div');
+    if(c.abs){ div.className='chip abs'; div.title='Lido em escala absoluta (ver Ótimos ambientais)'; div.textContent=c.l; }
+    else {
+      const p=groupPct(c.id,matchIdx,excludeIdx); const lvl=levelFromPct(p);
+      div.className='chip '+lvl; div.textContent=c.l;
     }
+    el.appendChild(div);
   }
+}
 
-  // Table A — sort by true fraction desc
-  rowsA.sort((a, b) => b.sort - a.sort);
-  const tbodyA = document.getElementById('trait-body');
-  tbodyA.innerHTML = '';
-  for (const r of rowsA) {
-    const tr = document.createElement('tr');
-    tr.dataset.name = r.name.toLowerCase();
-    tr.innerHTML = `<td>${r.name}</td><td>${r.pct}%</td>`;
-    tbodyA.appendChild(tr);
-  }
-  document.getElementById('traits-card').style.display = 'block';
+// ===========================================================================
+// Render — teias SVG (§7)
+// ===========================================================================
+function radarSVG(axes, values, color){
+  const cx=250,cy=215,R=130,n=axes.length;
+  const ang=i=>(-90+i*360/n)*Math.PI/180;
+  let s=`<svg viewBox="0 0 500 420" width="100%" style="max-width:480px">`;
+  for(let g=1;g<=4;g++){ const r=R*g/4;
+    s+=`<polygon points="${axes.map((_,i)=>`${(cx+r*Math.cos(ang(i))).toFixed(1)},${(cy+r*Math.sin(ang(i))).toFixed(1)}`).join(' ')}" fill="none" stroke="#e0e3ea" stroke-width="1"/>`; }
+  axes.forEach((_,i)=>{ s+=`<line x1="${cx}" y1="${cy}" x2="${(cx+R*Math.cos(ang(i))).toFixed(1)}" y2="${(cy+R*Math.sin(ang(i))).toFixed(1)}" stroke="#e0e3ea" stroke-width="1"/>`; });
+  const pt=(v,i)=>{ const r=R*Math.max(0.03,Math.min(1,v)); return `${(cx+r*Math.cos(ang(i))).toFixed(1)},${(cy+r*Math.sin(ang(i))).toFixed(1)}`; };
+  s+=`<polygon points="${values.map((v,i)=>pt(v,i)).join(' ')}" fill="${color}30" stroke="${color}" stroke-width="2"/>`;
+  values.forEach((v,i)=>{ const [x,y]=pt(v,i).split(','); s+=`<circle cx="${x}" cy="${y}" r="3.5" fill="${color}"/>`; });
+  axes.forEach((a,i)=>{ const r=R+16,x=cx+r*Math.cos(ang(i)),y=cy+r*Math.sin(ang(i)),c=Math.cos(ang(i));
+    const anchor=Math.abs(c)<0.3?'middle':(c>0?'start':'end');
+    s+=`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-size="11" fill="#6b7280">${a}</text>`; });
+  return s+`</svg>`;
+}
+function renderRadars(matchIdx, excludeIdx){
+  const v1=RADAR1.map(([gid])=>groupPct(gid,matchIdx,excludeIdx));
+  const v2=RADAR2.map(([gid])=>groupPct(gid,matchIdx,excludeIdx));
+  document.getElementById('radar1').innerHTML=radarSVG(RADAR1.map(a=>a[1]),v1,'#2563eb');
+  document.getElementById('radar2').innerHTML=radarSVG(RADAR2.map(a=>a[1]),v2,'#16a34a');
+}
 
-  // Table B — numeric traits
-  if (rowsB.length > 0) {
-    rowsB.sort((a, b) => a.name.localeCompare(b.name));
-    const tbodyB = document.getElementById('env-body');
-    tbodyB.innerHTML = '';
-    const UNITS = {ph:'', temperature:' °C', salinity:''};
-    for (const r of rowsB) {
-      const unit = Object.entries(UNITS).find(([k]) => r.name.toLowerCase().includes(k))?.[1] ?? '';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.name}</td><td>${r.value.toFixed(2)}${unit}</td>`;
-      tbodyB.appendChild(tr);
+// ===========================================================================
+// Render — cartões interpretados (§8) + drill-down de géneros
+// ===========================================================================
+function renderInterpretation(matchIdx, excludeIdx, groupGenera){
+  const el=document.getElementById('interpret-groups'); el.innerHTML='';
+  for(const grp of GROUP_DEFS){
+    const p=groupPct(grp.id,matchIdx,excludeIdx);
+    if(p===null) continue;
+    const lvl=levelFromPct(p);
+    const gg=groupGenera[grp.id]||{top:[],more:0};
+    let drill='';
+    if(gg.top.length){
+      const show=gg.top.slice(0,5);
+      const rows=show.map(([g,f])=>`<tr><td class="gen">${g}</td><td class="g-pct">${fmt(f*100,1)}%</td></tr>`).join('');
+      const remaining=gg.more+(gg.top.length-show.length);
+      const more=remaining>0?`<tr><td colspan="2" class="g-more">(+${remaining} géneros)</td></tr>`:'';
+      drill=`<details class="drill"><summary>Géneros que mais contribuem</summary>
+        <table class="drill-table"><tbody>${rows}${more}</tbody></table></details>`;
     }
-    document.getElementById('env-card').style.display = 'block';
+    const div=document.createElement('div'); div.className='group-item';
+    div.innerHTML=`<div class="group-header">
+        <span class="group-name">${grp.name}</span>
+        <span class="group-tech">${grp.tech}</span>
+        <span class="level-pill ${lvl}">${lvl}</span></div>
+      <p class="group-phrase">${grp.phrases[lvl]}</p>
+      ${grp.note?`<p class="group-note">ℹ ${grp.note}</p>`:''}
+      ${drill}`;
+    el.appendChild(div);
   }
+}
 
-  // Filter Table A
-  document.getElementById('trait-search').oninput = function() {
-    const q = this.value.toLowerCase();
-    for (const tr of tbodyA.querySelectorAll('tr')) {
-      tr.classList.toggle('hidden', q && !tr.dataset.name.includes(q));
-    }
+// ===========================================================================
+// Render — sunburst composição (§9.1) + diversidade (§9.2)
+// ===========================================================================
+const PALETTE=['#2563eb','#16a34a','#d97706','#7c3aed','#0891b2','#dc2626','#65a30d','#db2777','#0d9488','#475569'];
+function lighten(hex,amt){
+  const c=parseInt(hex.slice(1),16); let r=(c>>16)&255,g=(c>>8)&255,b=c&255;
+  r=Math.round(r+(255-r)*amt); g=Math.round(g+(255-g)*amt); b=Math.round(b+(255-b)*amt);
+  return `rgb(${r},${g},${b})`;
+}
+function arcPath(cx,cy,r0,r1,a0,a1){
+  const large=(a1-a0)>Math.PI?1:0;
+  const p=(r,a)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
+  const [x0,y0]=p(r1,a0),[x1,y1]=p(r1,a1),[x2,y2]=p(r0,a1),[x3,y3]=p(r0,a0);
+  return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r1} ${r1} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)} `+
+         `L${x2.toFixed(1)} ${y2.toFixed(1)} A${r0} ${r0} 0 ${large} 0 ${x3.toFixed(1)} ${y3.toFixed(1)} Z`;
+}
+function renderSunburst(parsedGenera){
+  const phy={}; let total=0, domCount={};
+  for(const g of parsedGenera){
+    const P=g.lineage.P||'Não classificado', C=g.lineage.C||'—', D=g.lineage.D||'';
+    total+=g.reads;
+    if(D) domCount[D]=(domCount[D]||0)+g.reads;
+    phy[P]=phy[P]||{v:0,cls:{}}; phy[P].v+=g.reads; phy[P].cls[C]=(phy[P].cls[C]||0)+g.reads;
+  }
+  let phyla=Object.entries(phy).map(([n,o])=>({n,v:o.v,cls:o.cls})).sort((a,b)=>b.v-a.v);
+  const MINP=0.015*total; const small=phyla.filter(p=>p.v<MINP);
+  phyla=phyla.filter(p=>p.v>=MINP);
+  if(small.length){ phyla.push({n:'Outros',v:small.reduce((s,p)=>s+p.v,0),cls:{}}); }
+  const domLabel=Object.entries(domCount).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+
+  const cx=170,cy=175,r0=40,r1=92,r2=140;
+  let svg=`<svg viewBox="0 0 340 350" width="100%" style="max-width:340px">`;
+  let a=-Math.PI/2;
+  phyla.forEach((p,pi)=>{
+    const span=p.v/total*2*Math.PI; const col=PALETTE[pi%PALETTE.length];
+    svg+=`<path d="${arcPath(cx,cy,r0,r1,a,a+span)}" fill="${col}" stroke="#fff" stroke-width="1.5"><title>${p.n} — ${fmt(p.v/total*100,1)}%</title></path>`;
+    // anel das classes
+    let cls=Object.entries(p.cls).map(([n,v])=>({n,v})).sort((x,y)=>y.v-x.v);
+    const minc=0.15*p.v; const sm=cls.filter(c=>c.v<minc); cls=cls.filter(c=>c.v>=minc);
+    if(sm.length) cls.push({n:'Outros',v:sm.reduce((s,c)=>s+c.v,0)});
+    let ca=a;
+    cls.forEach((c,ci)=>{ const cspan=c.v/p.v*span;
+      svg+=`<path d="${arcPath(cx,cy,r1,r2,ca,ca+cspan)}" fill="${lighten(col,0.45)}" stroke="#fff" stroke-width="1"><title>${c.n} — ${fmt(c.v/total*100,1)}%</title></path>`;
+      ca+=cspan; });
+    a+=span;
+  });
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${r0}" fill="#6b7280"/>`;
+  svg+=`<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="#fff">${domLabel||'—'}</text></svg>`;
+  document.getElementById('sunburst').innerHTML=svg;
+
+  // legenda (top filos)
+  const leg=phyla.slice(0,6).map((p,pi)=>
+    `<div class="row"><span class="sw" style="background:${PALETTE[pi%PALETTE.length]}"></span> ${p.n} — ${fmt(p.v/total*100,1)}%</div>`).join('');
+  document.getElementById('sunburst-legend').innerHTML=leg+
+    `<div class="row" style="color:var(--muted);font-style:italic;margin-top:4px">Anéis: filo (interno) → classe (externo). Cauda rara agregada em “Outros”.</div>`;
+}
+function renderDiversity(div){
+  document.getElementById('diversity-line').innerHTML=
+    `<b>Diversidade:</b> <span class="div-pill">${div.divLabel}</span><br>
+     <span style="font-size:12px;color:var(--muted)">${div.nGenera} géneros · Shannon ${fmt(div.queryShannon,2)} —
+     percentil ${Math.round(div.divPct*100)}º face à coleção de ${COLLECTION_SIZE} amostras.</span>`;
+}
+
+// ===========================================================================
+// Render — tabela de indicadores (§10)
+// ===========================================================================
+function renderTraits(featureObj){
+  const bySlug={};
+  for(const [key,val] of Object.entries(featureObj)){
+    const dot=key.indexOf('.'); const slug=key.slice(0,dot), state=key.slice(dot+1);
+    (bySlug[slug]=bySlug[slug]||{})[state]=val;
+  }
+  const rows=[];
+  for(const [slug,states] of Object.entries(bySlug)){
+    if('mean' in states) continue;             // numéricos vão para §11
+    const tf=states.true||0;
+    if(tf>0) rows.push({name:traitLabel(slug), pct:tf*100, sort:tf});
+  }
+  rows.sort((a,b)=>b.sort-a.sort);
+  const maxBar=rows.length?rows[0].pct:1;
+  const tb=document.getElementById('trait-body'); tb.innerHTML='';
+  for(const r of rows){
+    const w=Math.max(1,Math.round(r.pct/maxBar*140));
+    const tr=document.createElement('tr'); tr.dataset.name=r.name.toLowerCase();
+    tr.innerHTML=`<td>${r.name}</td><td><div class="bar-wrap"><span class="bar" style="width:${w}px"></span>${fmt(r.pct,1)}%</div></td>`;
+    tb.appendChild(tr);
+  }
+  document.getElementById('trait-search').oninput=function(){
+    const q=this.value.toLowerCase();
+    for(const tr of tb.querySelectorAll('tr')) tr.classList.toggle('hidden', q && !tr.dataset.name.includes(q));
   };
 }
 
-// ---------------------------------------------------------------------------
-// Rendering — secção sintetizada (19 grupos)
-// ---------------------------------------------------------------------------
-function renderInterpretation(featureObj, matchedSampleId) {
-  const matchIdx = groupScores.samples.indexOf(matchedSampleId);
-  const groupsEl = document.getElementById('interpret-groups');
-  groupsEl.innerHTML = '';
-
-  for (const grp of GROUP_DEFS) {
-
-    if (grp.special === 'absolute') {
-      // Grupo 11 — ótimos ambientais (escala absoluta)
-      const ph   = featureObj['ph_growth.mean']          ?? null;
-      const temp = featureObj['temperature_growth.mean'] ?? null;
-      const sal  = featureObj['salinity_growth.mean']    ?? null;
-
-      const phB   = getBand(ph,   PH_BANDS);
-      const tempB = getBand(temp, TEMP_BANDS);
-      const salB  = getBand(sal,  SAL_BANDS);
-
-      const phLine   = ph   !== null ? `A comunidade microbiana é típica de solos de reação <strong class="${phB.cls}">${phB.label}</strong> (pH ótimo predito ≈ ${ph.toFixed(1)}).` : 'Dados insuficientes.';
-      const tempLine = temp !== null ? `Comunidade <strong class="${tempB.cls}">${tempB.label}</strong> — adaptada a temperaturas ${tempB.label==='mesófila'?'moderadas':tempB.label==='psicrófila'?'baixas':'elevadas'} (temperatura ótima predita ≈ ${temp.toFixed(1)} °C).` : 'Dados insuficientes.';
-      const salLine  = sal  !== null ? `Comunidade adaptada a <strong class="${salB.cls}">${salB.label}</strong> — sem sinais de stress salino (salinidade ótima predita ≈ ${sal.toFixed(2)}).` : 'Dados insuficientes.';
-
-      const div = document.createElement('div');
-      div.className = 'group-item group-item-wide';
-      div.innerHTML = `
-        <div class="group-header">
-          <span class="group-name">${grp.name}</span>
-          <span class="group-tech">(escala absoluta, não régua relativa)</span>
-        </div>
-        <p class="group-note" style="margin-bottom:8px">⚠ Ótimos inferidos da comunidade (preferência ambiental dos microrganismos presentes), não medições do solo.</p>
-        <p class="group-phrase">${phLine}</p>
-        <p class="group-phrase">${tempLine}</p>
-        <p class="group-phrase">${salLine}</p>`;
-      groupsEl.appendChild(div);
-      continue;
-    }
-
-    if (grp.special === 'generic') {
-      // Grupo 13 — frase genérica, não parametrizada
-      const div = document.createElement('div');
-      div.className = 'group-item';
-      div.innerHTML = `
-        <div class="group-header">
-          <span class="group-name">${grp.name}</span>
-        </div>
-        <p class="group-phrase">${grp.phrase}</p>`;
-      groupsEl.appendChild(div);
-      continue;
-    }
-
-    // Grupos com régua relativa (todos os outros)
-    const refArr = groupScores.groups[grp.id];
-    if (!refArr) continue; // grupo sem dados na coleção
-
-    const score = groupScores.groups[grp.id][matchIdx];
-    const pct   = percentileRank(score, refArr, matchIdx);
-    const level = levelFromPct(pct);
-
-    const div = document.createElement('div');
-    div.className = 'group-item';
-    div.innerHTML = `
-      <div class="group-header">
-        <span class="group-name">${grp.name}</span>
-        <span class="group-tech">(${grp.tech})</span>
-        <span class="level-pill ${level}">${level}</span>
-      </div>
-      <p class="group-phrase">${grp.phrases[level]}</p>
-      ${grp.note ? `<p class="group-note">ℹ ${grp.note}</p>` : ''}
-      <p class="group-pct">Percentil na coleção: ${Math.round(pct*100)}º</p>`;
-    groupsEl.appendChild(div);
-  }
-
-  document.getElementById('interpret-card').style.display = 'block';
+// ===========================================================================
+// Render — ótimos ambientais (§11)
+// ===========================================================================
+function renderEnv(featureObj){
+  const ph=featureObj['ph_growth.mean'], temp=featureObj['temperature_growth.mean'], sal=featureObj['salinity_growth.mean'];
+  const phB=getBand(ph,PH_BANDS), tempB=getBand(temp,TEMP_BANDS), salB=getBand(sal,SAL_BANDS);
+  const tb=document.getElementById('env-body');
+  tb.innerHTML=`
+    <tr><td style="width:170px">pH preferencial</td><td><span class="band ${phB.cls}">${phB.label}</span>${ph!=null?` · ~${fmt(ph,1)}`:''}</td></tr>
+    <tr><td>Temperatura</td><td><span class="band ${tempB.cls}">${tempB.label}</span>${temp!=null?` · ~${fmt(temp,0)} °C`:''}</td></tr>
+    <tr><td>Salinidade</td><td><span class="band ${salB.cls}">${salB.label}</span>${sal!=null?` · ~${fmt(sal,1)}`:''}</td></tr>`;
 }
 
-// ---------------------------------------------------------------------------
-// Main analysis flow
-// ---------------------------------------------------------------------------
-function setStatus(msg, cls) {
-  const el = document.getElementById('status');
-  el.textContent = msg;
-  el.className = cls;
+// ===========================================================================
+// Render — PCoA (§12) + vizinhos
+// ===========================================================================
+function pcVarLabel(i){ const v=pcoaData.pct_var?pcoaData.pct_var[i]:null; return v==null?'—':fmt(v,1)+'%'; }
+function renderPCoA(neighbors,newPt){
+  const ids=new Set(neighbors.map(n=>n.id));
+  const ref=pcoaData.samples.map((sid,i)=>({x:pcoaData.pc1[i],y:pcoaData.pc2[i],sid})).filter(p=>!ids.has(p.sid));
+  const nb=neighbors.map(n=>{ const i=pcoaData.samples.indexOf(n.id); return {x:pcoaData.pc1[i],y:pcoaData.pc2[i],sid:n.id}; });
+  const datasets=[
+    {label:`Coleção (n=${pcoaData.samples.length})`,data:ref.map(p=>({x:p.x,y:p.y})),pointRadius:4,pointHoverRadius:6,backgroundColor:'#9ca3af',borderColor:'#6b7280',borderWidth:1},
+    {label:'Amostras semelhantes',data:nb.map(p=>({x:p.x,y:p.y,label:p.sid})),pointRadius:7,pointHoverRadius:9,backgroundColor:'#1d4ed8',borderColor:'#1e3a8a',borderWidth:1.5},
+    {label:'Nova amostra',data:[{x:newPt.pc1,y:newPt.pc2}],pointRadius:10,pointHoverRadius:12,pointStyle:'crossRot',backgroundColor:'#dc2626',borderColor:'#dc2626',borderWidth:2.5},
+  ];
+  if(pcoaChart) pcoaChart.destroy();
+  pcoaChart=new Chart(document.getElementById('pcoa-chart'),{type:'scatter',data:{datasets},options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:11}}},
+      tooltip:{callbacks:{label:ctx=>{const r=ctx.raw;const l=r.label?`Amostra ${r.label}`:ctx.dataset.label;return `${l} (${r.x.toFixed(3)}, ${r.y.toFixed(3)})`;}}}},
+    scales:{x:{title:{display:true,text:`PC1 (${pcVarLabel(0)})`,font:{size:11}},grid:{color:'#f3f4f6'}},
+      y:{title:{display:true,text:`PC2 (${pcVarLabel(1)})`,font:{size:11}},grid:{color:'#f3f4f6'}}}}});
+  document.getElementById('pcoa-note').textContent=`PC1 ${pcVarLabel(0)} · PC2 ${pcVarLabel(1)} · posição da nova amostra = centróide dos vizinhos`;
+}
+function renderNeighbors(neighbors){
+  const tb=document.getElementById('neighbors-body'); tb.innerHTML='';
+  neighbors.forEach((n,i)=>{ const tr=document.createElement('tr'); if(i===0) tr.classList.add('highlight');
+    tr.innerHTML=`<td>${i+1}</td><td>${n.id}</td><td>${fmt(n.dist,4)}</td>`; tb.appendChild(tr); });
 }
 
-document.getElementById('file-input').addEventListener('change', () => {
-  const f = document.getElementById('file-input').files[0];
-  if (f) document.getElementById('analyze-btn').disabled = !compData;
+// ===========================================================================
+// Fluxo principal
+// ===========================================================================
+function fmt(v,d){ return (v==null||isNaN(v))?'—':v.toFixed(d).replace('.',','); }
+function setStatus(msg,cls){ const el=document.getElementById('status'); el.textContent=msg; el.className=cls; }
+
+async function analyzeFromText(text, opts){
+  const isExample = !!(opts&&opts.isExample);
+  const sampleLabel = opts&&opts.label ? opts.label : 'amostra carregada';
+  const k=Math.max(1,Math.min(10,parseInt(document.getElementById('k-input').value)||5));
+  setStatus('A processar relatório Bracken…','info');
+
+  const {genera}=parseBrackenReport(text);
+  const queryVec=buildQueryVector(genera, compData.genera);
+  const matched=queryVec.filter(v=>v>0).length;
+  setStatus(`${genera.length} géneros detetados, ${matched} correspondidos na referência. A calcular distâncias…`,'info');
+
+  const neighbors=findKNN(queryVec,k);
+  const newPt=pcoaCentroid(neighbors);
+  const top=neighbors[0];
+  const matchIdx=groupScores.samples.indexOf(top.id);
+  // §15: a amostra consultada é excluída da régua; exceção: amostra de exemplo (10)
+  const excludeIdx = isExample ? -1 : matchIdx;
+  const excludeShannonIdx = isExample ? -1 : compData.samples.indexOf(top.id);  // collShannon segue a ordem de compData
+
+  setStatus(`A importar perfil de traços da amostra ${top.id}…`,'info');
+  const [featureObj, groupGenera] = await Promise.all([
+    fetch(`data/traits/${top.id}.json`).then(r=>r.json()),
+    fetch(`data/group_genera/${top.id}.json`).then(r=>r.json()),
+  ]);
+
+  const queryShannon=shannonFromGenera(genera);
+  const ctx={parsedGenera:genera, queryShannon, featureObj, excludeShannonIdx};
+  const div=renderKPIs(ctx);
+  renderChips(matchIdx, excludeIdx);
+  renderRadars(matchIdx, excludeIdx);
+  renderInterpretation(matchIdx, excludeIdx, groupGenera);
+  renderSunburst(genera);
+  renderDiversity(div);
+  renderTraits(featureObj);
+  renderEnv(featureObj);
+  renderPCoA(neighbors,newPt);
+  renderNeighbors(neighbors);
+
+  document.getElementById('results-section').style.display='flex';
+  document.getElementById('export-btn').style.display='inline-block';
+  document.getElementById('print-head-meta').innerHTML=
+    `Amostra: ${sampleLabel} · vizinho mais próximo: ${top.id} (Bray-Curtis ${fmt(top.dist,4)}) · `+
+    `coleção ${COLLECTION_SIZE} amostras (ERR4588xxx) · ${new Date().toLocaleDateString('pt-PT')}`;
+  setStatus(`Concluído. Amostra mais semelhante: ${top.id} (Bray-Curtis = ${fmt(top.dist,4)}). ${matched} géneros de referência correspondidos.`,'ok');
+}
+
+document.getElementById('file-input').addEventListener('change',()=>{
+  document.getElementById('analyze-btn').disabled = !(document.getElementById('file-input').files[0] && compData);
 });
-
-document.getElementById('analyze-btn').addEventListener('click', async () => {
-  const file = document.getElementById('file-input').files[0];
-  if (!file) return;
-  const k = Math.max(1, Math.min(10, parseInt(document.getElementById('k-input').value) || 3));
-
-  document.getElementById('analyze-btn').disabled = true;
-  setStatus('A processar ficheiro Bracken…', 'info');
-
+document.getElementById('analyze-btn').addEventListener('click',async()=>{
+  const file=document.getElementById('file-input').files[0]; if(!file) return;
+  document.getElementById('analyze-btn').disabled=true;
+  try { await analyzeFromText(await file.text(), {label:file.name}); }
+  catch(e){ setStatus('Erro: '+e.message,'error'); }
+  finally { document.getElementById('analyze-btn').disabled=false; }
+});
+document.getElementById('example-btn').addEventListener('click',async()=>{
+  const btn=document.getElementById('example-btn'); btn.disabled=true;
   try {
-    const text = await file.text();
-    const {totalReads, genera} = parseBrackenReport(text);
-
-    const queryVec  = buildQueryVector(genera, compData.genera);
-    const matched   = queryVec.filter(v => v > 0).length;
-    const coverage  = (matched / compData.genera.length * 100).toFixed(0);
-
-    setStatus(`${genera.length} géneros detetados, ${matched} correspondidos na referência. A calcular distâncias…`, 'info');
-
-    const neighbors = findKNN(queryVec, k);
-    const newPt     = pcoaCentroid(neighbors);
-
-    renderPCoA(neighbors, newPt);
-    renderNeighbors(neighbors);
-
-    document.getElementById('results-section').style.display = 'block';
-
-    // Carregar traços da amostra mais semelhante
-    const top = neighbors[0];
-    setStatus(`A carregar perfil de traços da amostra ${top.id}…`, 'info');
-    const traits = await fetch(`data/traits/${top.id}.json`).then(r => r.json());
-    renderInterpretation(traits, top.id);
-    renderTraits(traits);
-
-    setStatus(
-      `Concluído. Amostra mais semelhante: amostra ${top.id} (Bray-Curtis = ${top.dist.toFixed(4).replace('.', ',')}). ` +
-      `${matched} géneros de referência correspondidos.`,
-      'ok'
-    );
-  } catch(e) {
-    setStatus('Erro: ' + e.message, 'error');
-  } finally {
-    document.getElementById('analyze-btn').disabled = false;
-  }
+    const text=await fetch('data/example_bracken.txt').then(r=>{ if(!r.ok) throw new Error('exemplo não encontrado'); return r.text(); });
+    await analyzeFromText(text, {isExample:true, label:`Exemplo (amostra ${EXAMPLE_SID})`});
+  } catch(e){ setStatus('Erro: '+e.message,'error'); }
+  finally { btn.disabled=false; }
 });
 
-// Boot
 loadStaticData();
 </script>
 </body>

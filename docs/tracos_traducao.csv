@@ -1,0 +1,361 @@
+trait_en,trait_pt,group_id
+enzyme activity: nitrogenase,atividade enzimática: nitrogenase,1a
+enzyme activity: nitrogenase (EC1.18.6.1),atividade enzimática: nitrogenase (EC1.18.6.1),1a
+nitrogen fixation,fixação de azoto,1a
+nitrogen source: dinitrogen,fonte de azoto: diazoto,1a
+produces: dinitrogen,produz: diazoto,1a
+denitrification pathway,via de desnitrificação,1b
+denitrification: nitrate,desnitrificação: nitrato,1b
+denitrification: nitrite,desnitrificação: nitrito,1b
+denitrification: nitrous oxide,desnitrificação: óxido nitroso,1b
+nitrification,nitrificação,1b
+oxidation: ammonia,oxidação: amónia,1b
+builds gas from: nitrate,produz gás a partir de: nitrato,1c
+builds gas from: nitrite,produz gás a partir de: nitrito,1c
+enzyme activity: nitrate reductase (EC1.7.99.4),atividade enzimática: nitrato redutase (EC1.7.99.4),1c
+produces: dinitrogen oxide,produz: óxido de diazoto,1c
+reduction: nitrate,redução: nitrato,1c
+reduction: nitrite,redução: nitrito,1c
+respiration: nitrate,respiração: nitrato,1c
+respiration: nitrogen,respiração: azoto,1c
+ammonification: nitrate,amonificação: nitrato,1d
+ammonification: nitrite,amonificação: nitrito,1d
+enzyme activity: urease (EC3.5.1.5),atividade enzimática: urease (EC3.5.1.5),1d
+hydrolysis: urea,hidrólise: ureia,1d
+nitrogen source: ammonia,fonte de azoto: amónia,1d
+nitrogen source: ammonium,fonte de azoto: amónio,1d
+nitrogen source: ammonium chloride,fonte de azoto: cloreto de amónio,1d
+nitrogen source: ammonium nitrate,fonte de azoto: nitrato de amónio,1d
+nitrogen source: ammonium sulfate,fonte de azoto: sulfato de amónio,1d
+nitrogen source: nitrate,fonte de azoto: nitrato,1d
+nitrogen source: nitrite,fonte de azoto: nitrito,1d
+nitrogen source: urea,fonte de azoto: ureia,1d
+produces: ammonia,produz: amónia,1d
+produces: ammonium,produz: amónio,1d
+produces: nitrate,produz: nitrato,1d
+produces: nitrite,produz: nitrito,1d
+aerotolerant,aerotolerante,2
+facultative anaerobe,anaeróbio facultativo,2
+obligate aerobic,aeróbio obrigatório,2
+obligate anaerobic,anaeróbio obrigatório,2
+oxygen preference,preferência de oxigénio,2
+assimilation: agar,assimilação: ágar,3a
+assimilation: alpha-cyclodextrin,assimilação: alfa-ciclodextrina,3a
+assimilation: amylose,assimilação: amilose,3a
+assimilation: arabinogalactan,assimilação: arabinogalactano,3a
+assimilation: carboxymethylcellulose,assimilação: carboximetilcelulose,3a
+assimilation: cellobiose,assimilação: celobiose,3a
+assimilation: cellulose,assimilação: celulose,3a
+assimilation: chitin,assimilação: quitina,3a
+assimilation: chitosan,assimilação: quitosano,3a
+assimilation: crystalline cellulose,assimilação: celulose cristalina,3a
+assimilation: cyclodextrin,assimilação: ciclodextrina,3a
+assimilation: dextrin,assimilação: dextrina,3a
+assimilation: gamma-cyclodextrin,assimilação: gama-ciclodextrina,3a
+assimilation: glycogen,assimilação: glicogénio,3a
+assimilation: mannan,assimilação: manano,3a
+carbon source: agar,fonte de carbono: ágar,3a
+carbon source: alginate,fonte de carbono: alginato,3a
+carbon source: alpha-cyclodextrin,fonte de carbono: alfa-ciclodextrina,3a
+carbon source: amylopectin,fonte de carbono: amilopectina,3a
+carbon source: amylose,fonte de carbono: amilose,3a
+carbon source: beta-cyclodextrin,fonte de carbono: beta-ciclodextrina,3a
+carbon source: carboxymethylcellulose,fonte de carbono: carboximetilcelulose,3a
+carbon source: cellobiose,fonte de carbono: celobiose,3a
+carbon source: cellulose,fonte de carbono: celulose,3a
+carbon source: chitin,fonte de carbono: quitina,3a
+carbon source: chitosan,fonte de carbono: quitosano,3a
+carbon source: cyclodextrin,fonte de carbono: ciclodextrina,3a
+carbon source: dextran,fonte de carbono: dextrano,3a
+carbon source: dextrin,fonte de carbono: dextrina,3a
+carbon source: fucoidan,fonte de carbono: fucoidano,3a
+carbon source: gamma-cyclodextrin,fonte de carbono: gama-ciclodextrina,3a
+carbon source: gellan gum,fonte de carbono: goma gelana,3a
+carbon source: glucomannan,fonte de carbono: glucomanano,3a
+carbon source: glycogen,fonte de carbono: glicogénio,3a
+carbon source: inulin,fonte de carbono: inulina,3a
+carbon source: laminarin,fonte de carbono: laminarina,3a
+carbon source: pectin,fonte de carbono: pectina,3a
+carbon source: pullulan,fonte de carbono: pululano,3a
+carbon source: starch,fonte de carbono: amido,3a
+carbon source: xylan,fonte de carbono: xilano,3a
+degradation: agar,degradação: ágar,3a
+degradation: agarose,degradação: agarose,3a
+degradation: alginate,degradação: alginato,3a
+degradation: amylose,degradação: amilose,3a
+degradation: arabinogalactan,degradação: arabinogalactano,3a
+degradation: carboxymethylcellulose,degradação: carboximetilcelulose,3a
+degradation: carrageenan,degradação: carragenina,3a
+degradation: cellobiose,degradação: celobiose,3a
+degradation: cellulose,degradação: celulose,3a
+degradation: chitin,degradação: quitina,3a
+degradation: chitosan,degradação: quitosano,3a
+degradation: crystalline cellulose,degradação: celulose cristalina,3a
+degradation: glucomannan,degradação: glucomanano,3a
+degradation: glycogen,degradação: glicogénio,3a
+degradation: hydroxyethylcellulose,degradação: hidroxietilcelulose,3a
+degradation: inulin,degradação: inulina,3a
+degradation: laminarin,degradação: laminarina,3a
+degradation: lignin,degradação: lenhina,3a
+degradation: starch,degradação: amido,3a
+degradation: xylan,degradação: xilano,3a
+energy source: agarose,fonte de energia: agarose,3a
+energy source: amylopectin,fonte de energia: amilopectina,3a
+energy source: cellobiose,fonte de energia: celobiose,3a
+energy source: cellulose,fonte de energia: celulose,3a
+energy source: cyclodextrin,fonte de energia: ciclodextrina,3a
+energy source: dextran,fonte de energia: dextrano,3a
+energy source: glycogen,fonte de energia: glicogénio,3a
+enzyme activity: agarase (EC3.2.1.81),atividade enzimática: agarase (EC3.2.1.81),3a
+enzyme activity: alginase (EC3.2.1.16),atividade enzimática: alginase (EC3.2.1.16),3a
+enzyme activity: cellulase (EC3.2.1.4),atividade enzimática: celulase (EC3.2.1.4),3a
+enzyme activity: chitinase (EC3.2.1.14),atividade enzimática: quitinase (EC3.2.1.14),3a
+"enzyme activity: endo-1,4-beta-xylanase (EC3.2.1.8)","atividade enzimática: endo-1,4-beta-xilanase (EC3.2.1.8)",3a
+enzyme activity: pectinase,atividade enzimática: pectinase,3a
+fermentation: agarose,fermentação: agarose,3a
+fermentation: alginate,fermentação: alginato,3a
+fermentation: arabinogalactan,fermentação: arabinogalactano,3a
+fermentation: carboxymethylcellulose,fermentação: carboximetilcelulose,3a
+fermentation: cellobiose,fermentação: celobiose,3a
+fermentation: cellulose,fermentação: celulose,3a
+fermentation: chitin,fermentação: quitina,3a
+fermentation: dextrin,fermentação: dextrina,3a
+fermentation: glycogen,fermentação: glicogénio,3a
+fermentation: inulin,fermentação: inulina,3a
+fermentation: inuline,fermentação: inulina,3a
+growth: MacConkey agar,crescimento: ágar MacConkey,3a
+growth: agar,crescimento: ágar,3a
+growth: agarose,crescimento: agarose,3a
+growth: alginate,crescimento: alginato,3a
+growth: alpha-cyclodextrin,crescimento: alfa-ciclodextrina,3a
+growth: amylopectin,crescimento: amilopectina,3a
+growth: amylose,crescimento: amilose,3a
+growth: arabinan,crescimento: arabinano,3a
+growth: arabinogalactan,crescimento: arabinogalactano,3a
+growth: arabinoxylan,crescimento: arabinoxilano,3a
+growth: blood agar,crescimento: ágar de sangue,3a
+growth: carboxymethylcellulose,crescimento: carboximetilcelulose,3a
+growth: carrageenan,crescimento: carragenina,3a
+growth: cellobiose,crescimento: celobiose,3a
+growth: cellulose,crescimento: celulose,3a
+growth: chitin,crescimento: quitina,3a
+growth: chitosan,crescimento: quitosano,3a
+growth: dextran,crescimento: dextrano,3a
+growth: dextrin,crescimento: dextrina,3a
+growth: gellan gum,crescimento: goma gelana,3a
+growth: glycogen,crescimento: glicogénio,3a
+growth: inulin,crescimento: inulina,3a
+growth: pectin,crescimento: pectina,3a
+growth: starch,crescimento: amido,3a
+hydrolysis: agar,hidrólise: ágar,3a
+hydrolysis: alginate,hidrólise: alginato,3a
+hydrolysis: alpha-cyclodextrin,hidrólise: alfa-ciclodextrina,3a
+hydrolysis: arabinogalactan,hidrólise: arabinogalactano,3a
+hydrolysis: carboxymethylcellulose,hidrólise: carboximetilcelulose,3a
+hydrolysis: carrageenan,hidrólise: carragenina,3a
+hydrolysis: cationic chitosan,hidrólise: quitosano catiónico,3a
+hydrolysis: cellobiose,hidrólise: celobiose,3a
+hydrolysis: cellulose,hidrólise: celulose,3a
+hydrolysis: chitin,hidrólise: quitina,3a
+hydrolysis: chitosan,hidrólise: quitosano,3a
+hydrolysis: crab shell chitin,hidrólise: quitina de carapaça de caranguejo,3a
+hydrolysis: crystalline cellulose,hidrólise: celulose cristalina,3a
+hydrolysis: dextrin,hidrólise: dextrina,3a
+hydrolysis: fucoidan,hidrólise: fucoidano,3a
+hydrolysis: gamma-cyclodextrin,hidrólise: gama-ciclodextrina,3a
+hydrolysis: hydroxyethylcellulose,hidrólise: hidroxietilcelulose,3a
+hydrolysis: sodium alginate,hidrólise: alginato de sódio,3a
+hydrolysis: starch,hidrólise: amido,3a
+hydrolysis: xylan,hidrólise: xilano,3a
+oxidation: alpha-cyclodextrin,oxidação: alfa-ciclodextrina,3a
+oxidation: beta-cyclodextrin,oxidação: beta-ciclodextrina,3a
+oxidation: cellobiose,oxidação: celobiose,3a
+oxidation: dextrin,oxidação: dextrina,3a
+produces: cellulose,produz: celulose,3a
+respiration: alpha-cyclodextrin,respiração: alfa-ciclodextrina,3a
+respiration: beta-cyclodextrin,respiração: beta-ciclodextrina,3a
+respiration: cellobiose,respiração: celobiose,3a
+respiration: dextrin,respiração: dextrina,3a
+respiration: glycogen,respiração: glicogénio,3a
+utilizes: cellobiose,utiliza: celobiose,3a
+utilizes: cellulose,utiliza: celulose,3a
+assimilation: casein,assimilação: caseína,3b
+assimilation: casein hydrolysate,assimilação: hidrolisado de caseína,3b
+assimilation: collagen,assimilação: colagénio,3b
+assimilation: gelatin,assimilação: gelatina,3b
+carbon source: casein,fonte de carbono: caseína,3b
+carbon source: casein hydrolysate,fonte de carbono: hidrolisado de caseína,3b
+carbon source: gelatin,fonte de carbono: gelatina,3b
+degradation: casein,degradação: caseína,3b
+degradation: collagen,degradação: colagénio,3b
+degradation: dna,degradação: ADN,3b
+degradation: elastin,degradação: elastina,3b
+degradation: fibrin,degradação: fibrina,3b
+degradation: gelatin,degradação: gelatina,3b
+degradation: milk,degradação: leite,3b
+degradation: skimmed milk,degradação: leite desnatado,3b
+energy source: casein hydrolysate,fonte de energia: hidrolisado de caseína,3b
+enzyme activity: caseinase (EC3.4.21.50),atividade enzimática: caseinase (EC3.4.21.50),3b
+enzyme activity: gelatinase,atividade enzimática: gelatinase,3b
+enzyme activity: skimmed milk protease,atividade enzimática: protease de leite desnatado,3b
+fermentation: casein hydrolysate,fermentação: hidrolisado de caseína,3b
+fermentation: gelatin,fermentação: gelatina,3b
+growth: casein,crescimento: caseína,3b
+growth: casein hydrolysate,crescimento: hidrolisado de caseína,3b
+hydrolysis: casein,hidrólise: caseína,3b
+hydrolysis: casein hydrolysate,hidrólise: hidrolisado de caseína,3b
+hydrolysis: collagen,hidrólise: colagénio,3b
+hydrolysis: dna,hidrólise: ADN,3b
+hydrolysis: gelatin,hidrólise: gelatina,3b
+hydrolysis: lecithin,hidrólise: lecitina,3b
+hydrolysis: milk,hidrólise: leite,3b
+hydrolysis: skimmed milk,hidrólise: leite desnatado,3b
+oxidation: casein,oxidação: caseína,3b
+respiration: gelatin,respiração: gelatina,3b
+utilizes: casein,utiliza: caseína,3b
+utilizes: gelatin,utiliza: gelatina,3b
+assimilation: benzene,assimilação: benzeno,3c
+assimilation: catechol,assimilação: catecol,3c
+carbon source: 1-methylphenanthrene,fonte de carbono: 1-metilfenantreno,3c
+carbon source: anthracene,fonte de carbono: antraceno,3c
+carbon source: benzene,fonte de carbono: benzeno,3c
+carbon source: catechol,fonte de carbono: catecol,3c
+carbon source: fluorene,fonte de carbono: fluoreno,3c
+carbon source: phenanthrene,fonte de carbono: fenantreno,3c
+carbon source: pyrene,fonte de carbono: pireno,3c
+carbon source: tetraphene,fonte de carbono: tetrafeno,3c
+degradation: aromatic compound,degradação: composto aromático,3c
+degradation: aromatic hydrocarbon,degradação: hidrocarboneto aromático,3c
+degradation: benzene,degradação: benzeno,3c
+degradation: benzoate,degradação: benzoato,3c
+degradation: hydrocarbon,degradação: hidrocarboneto,3c
+degradation: phenol,degradação: fenol,3c
+degradation: plastic,degradação: plástico,3c
+growth: benzene,crescimento: benzeno,3c
+growth: ethylbenzene,crescimento: etilbenzeno,3c
+enzyme activity: alpha-Amylase (EC3.2.1.1),atividade enzimática: alfa-amilase (EC3.2.1.1),3d
+enzyme activity: amylase,atividade enzimática: amilase,3d
+"enzyme activity: endo-1,3(4)-beta-glucanase (EC3.2.1.6)","atividade enzimática: endo-1,3(4)-beta-glucanase (EC3.2.1.6)",3d
+enzyme activity: esterase,atividade enzimática: esterase,3d
+enzyme activity: esterase (C 4),atividade enzimática: esterase (C 4),3d
+enzyme activity: esterase Lipase (C 8),atividade enzimática: esterase lipase (C 8),3d
+enzyme activity: esterase lipase (C 8),atividade enzimática: esterase lipase (C 8),3d
+enzyme activity: lipase,atividade enzimática: lipase,3d
+enzyme activity: lipase (C 14),atividade enzimática: lipase (C 14),3d
+enzyme activity: lipase (Tween 80),atividade enzimática: lipase (Tween 80),3d
+enzyme activity: protease,atividade enzimática: protease,3d
+enzyme activity: tween esterase,atividade enzimática: esterase de Tween,3d
+enzyme activity: tyrosinase,atividade enzimática: tirosinase,3d
+fermentation,fermentação,3d
+growth: chemoheterotrophy,crescimento: quimio-heterotrofia,3d
+hydrolysis: nitrate,hidrólise: nitrato,3d
+hydrolysis: tween 20,hidrólise: Tween 20,3d
+hydrolysis: tween 40,hidrólise: Tween 40,3d
+hydrolysis: tween 60,hidrólise: Tween 60,3d
+hydrolysis: tween 80,hidrólise: Tween 80,3d
+electron acceptor: elemental sulfur,recetor de eletrões: enxofre elementar,4
+electron acceptor: sulfate,recetor de eletrões: sulfato,4
+electron acceptor: sulfite,recetor de eletrões: sulfito,4
+electron acceptor: sulfur compounds,recetor de eletrões: compostos de enxofre,4
+electron acceptor: tetrathionate,recetor de eletrões: tetrationato,4
+electron acceptor: thiosulfate,recetor de eletrões: tiossulfato,4
+electron donor: elemental sulfur,doador de eletrões: enxofre elementar,4
+electron donor: hydrogen sulfide,doador de eletrões: sulfureto de hidrogénio,4
+electron donor: sulfide,doador de eletrões: sulfureto,4
+hydrolysis: chondroitin sulfate,hidrólise: sulfato de condroitina,4
+oxidation in darkness: sulfide,oxidação no escuro: sulfureto,4
+oxidation in darkness: sulfur compounds,oxidação no escuro: compostos de enxofre,4
+oxidation: elemental sulfur,oxidação: enxofre elementar,4
+oxidation: sulfide,oxidação: sulfureto,4
+oxidation: thiosulfate,oxidação: tiossulfato,4
+produces: hydrogen sulfide,produz: sulfureto de hidrogénio,4
+reduction: elemental sulfur,redução: enxofre elementar,4
+reduction: sulfate,redução: sulfato,4
+reduction: sulfite,redução: sulfito,4
+reduction: thiosulfate,redução: tiossulfato,4
+sulfur source: cysteine,fonte de enxofre: cisteína,4
+sulfur source: elemental sulfur,fonte de enxofre: enxofre elementar,4
+carbon source: methane,fonte de carbono: metano,5
+carbon source: methanol,fonte de carbono: metanol,5
+carbon source: methylamine,fonte de carbono: metilamina,5
+energy source: methane,fonte de energia: metano,5
+energy source: methanol,fonte de energia: metanol,5
+enzyme activity: methanol dehydrogenase (EC1.1.1.244),atividade enzimática: metanol desidrogenase (EC1.1.1.244),5
+oxidation: methane,oxidação: metano,5
+oxidation: methanol,oxidação: metanol,5
+produces: methane,produz: metano,5
+produces: methane from acetate,produz: metano a partir de acetato,5
+produces: methane from formate,produz: metano a partir de formato,5
+electron acceptor: fe(iii) citrate,recetor de eletrões: citrato de fe(iii),6
+electron acceptor: ferric citrate,recetor de eletrões: citrato férrico,6
+electron acceptor: ferric iron,recetor de eletrões: ferro férrico,6
+electron acceptor: ferric oxide,recetor de eletrões: óxido férrico,6
+electron acceptor: ferrihydrite,recetor de eletrões: ferri-hidrite,6
+electron acceptor: iron,recetor de eletrões: ferro,6
+electron acceptor: manganese,recetor de eletrões: manganês,6
+electron acceptor: manganese dioxide,recetor de eletrões: dióxido de manganês,6
+electron donor: ferric iron,doador de eletrões: ferro férrico,6
+electron donor: ferrous ion,doador de eletrões: ião ferroso,6
+electron donor: iron,doador de eletrões: ferro,6
+electron donor: pyrite,doador de eletrões: pirite,6
+oxidation in darkness: iron,oxidação no escuro: ferro,6
+oxidation: iron,oxidação: ferro,6
+oxidation: pyrite,oxidação: pirite,6
+reduction: amorphous fe(iii) oxyhydroxid,redução: oxi-hidróxido de fe(iii) amorfo,6
+reduction: amorphous iron (iii) oxide,redução: óxido de ferro (iii) amorfo,6
+reduction: ferric iron,redução: ferro férrico,6
+reduction: ferric oxide,redução: óxido férrico,6
+reduction: ferrihydrite,redução: ferri-hidrite,6
+reduction: iron,redução: ferro,6
+enzyme activity: Acid phosphatase (EC3.1.3.2),atividade enzimática: fosfatase ácida (EC3.1.3.2),7
+enzyme activity: acid phosphatase (EC3.1.3.2),atividade enzimática: fosfatase ácida (EC3.1.3.2),7
+enzyme activity: alkaline phosphatase (EC3.1.3.1),atividade enzimática: fosfatase alcalina (EC3.1.3.1),7
+enzyme activity: naphthol-AS-BI-phosphohydrolase,atividade enzimática: naftol-AS-BI-fosfo-hidrolase,7
+enzyme activity: phosphatase,atividade enzimática: fosfatase,7
+enzyme activity: ACC deaminase,atividade enzimática: ACC desaminase,8
+produces: indole-3-acetate,produz: indol-3-acetato,8
+produces: indole-3-acetic acid,produz: ácido indol-3-acético,8
+produces: phenazines,produz: fenazinas,8
+produces: pyochelin,produz: pioquelina,8
+produces: pyocyanin,produz: piocianina,8
+produces: pyocyanine,produz: piocianina,8
+produces: siderophore,produz: sideróforo,8
+aerobic growth: anoxygenic phototrophy,crescimento aeróbio: fototrofia anoxigénica,9
+carbon source: carbon dioxide,fonte de carbono: dióxido de carbono,9
+electron donor: carbon monoxide,doador de eletrões: monóxido de carbono,9
+enzyme activity: Ribulose-bisphosphate carboxylase (EC4.1.1.39),atividade enzimática: ribulose-bifosfato carboxilase (EC4.1.1.39),9
+fermentation: carbon monoxide,fermentação: monóxido de carbono,9
+growth: anoxygenic photoautotrophy,crescimento: fotoautotrofia anoxigénica,9
+growth: carbon dioxide,crescimento: dióxido de carbono,9
+growth: carbon monoxide,crescimento: monóxido de carbono,9
+growth: photoautotrophy,crescimento: fotoautotrofia,9
+growth: photoheterotrophy,crescimento: foto-heterotrofia,9
+growth: phototrophy,crescimento: fototrofia,9
+acidophilic,acidófilo,10
+capnophilic,capnófilo,10
+growth: 1% sodium chloride,crescimento: 1% de cloreto de sódio,10
+growth: 42 degrees Celsius,crescimento: 42 graus Celsius,10
+growth: 6.5% NaCl,"crescimento: 6,5% de NaCl",10
+presence of motility,presença de motilidade,10
+psychrophilic,psicrófilo,10
+required for growth: sodium chloride,requer para crescimento: cloreto de sódio,10
+sporulation,esporulação,10
+thermophilic,termófilo,10
+pH growth,crescimento em pH,11
+pH maximum,pH máximo,11
+pH minimum,pH mínimo,11
+pH preference,preferência de pH,11
+salinity growth,crescimento em salinidade,11
+salinity maximum,salinidade máxima,11
+salinity minimum,salinidade mínima,11
+salinity preference,preferência de salinidade,11
+temperature growth,crescimento em temperatura,11
+temperature maximum,temperatura máxima,11
+temperature minimum,temperatura mínima,11
+temperature preference,preferência de temperatura,11
+produces: exopolysaccharide,produz: exopolissacárido,12
+produces: hopanoid,produz: hopanóide,12
+produces: poly-beta-hydroxyalkanoate,produz: poli-beta-hidroxialcanoato,12
+produces: polyhydroxyalkanoate,produz: poli-hidroxialcanoato,12
+produces: polyhydroxybutyrate,produz: poli-hidroxibutirato,12
+produces: polysaccharides,produz: polissacáridos,12
