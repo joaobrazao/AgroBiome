@@ -36,6 +36,7 @@ GROUP_SCORES_FILE  = DOCS / "tracos_por_grupo.csv"
 TRAIT_PT_FILE      = DOCS / "tracos_traducao.csv"
 PER_SAMPLE_DIR     = DERIVED / "per_sample"
 GROUP_GENERA_DIR   = OUT_DIR / "group_genera"
+GENUS_GROUPS_FILE  = OUT_DIR / "genus_groups.json"
 TOP_GENERA_PER_GROUP = 8
 
 
@@ -244,6 +245,45 @@ def build_group_genera():
     print(f"  {written} amostras → {GROUP_GENERA_DIR}", file=sys.stderr)
 
 
+def build_genus_groups():
+    """
+    Mapa global género -> grupos discretos para os quais o género é positivo
+    (consensus_bool=True em >=1 traço do grupo). A pertença é intrínseca ao
+    género (vem da BD de traços), independente da amostra; por isso é única e
+    serve o drill-down §8 da plataforma calculado sobre a AMOSTRA INPUT
+    (géneros do input ponderados pela abundância do input), em vez do match.
+    Output: genus_groups.json = {genus_name: [gid, ...]}. Grupo 11 excluído.
+    """
+    print("genus_groups.json...", file=sys.stderr)
+
+    trait_groups = {}   # trait_name -> set(gid) (exclui grupo 11 numérico)
+    with open(GROUP_SCORES_FILE, newline='') as f:
+        for row in csv.DictReader(f):
+            if row['group_id'] == '11' or row['type'] != 'discreto':
+                continue
+            trait_groups.setdefault(row['trait'], set()).add(row['group_id'])
+
+    genus_groups = {}   # genus -> set(gid)
+    files = sorted(PER_SAMPLE_DIR.glob("*_taxon_trait_annotations.tsv"))
+    for fp in files:
+        with open(fp) as f:
+            reader = csv.reader(f, delimiter='\t')
+            header = next(reader)
+            ci = {c: i for i, c in enumerate(header)}
+            i_name, i_trait, i_bool = ci['taxon_name'], ci['trait'], ci['consensus_bool']
+            for r in reader:
+                if r[i_bool] != 'True':
+                    continue
+                gids = trait_groups.get(r[i_trait])
+                if gids:
+                    genus_groups.setdefault(r[i_name], set()).update(gids)
+
+    out = {g: sorted(gs, key=lambda x: (len(x), x)) for g, gs in genus_groups.items()}
+    GENUS_GROUPS_FILE.write_text(
+        json.dumps(out, ensure_ascii=False, separators=(',', ':')))
+    print(f"  {len(files)} amostras → {len(out)} géneros → {GENUS_GROUPS_FILE}", file=sys.stderr)
+
+
 def build_group_scores():
     """
     Pré-calcula os scores dos 18 grupos interpretativos para as amostras da coleção.
@@ -348,4 +388,5 @@ if __name__ == "__main__":
     build_trait_names_pt()
     build_group_scores()
     build_group_genera()
+    build_genus_groups()
     print("\nDone. Ficheiros em app/data/", file=sys.stderr)

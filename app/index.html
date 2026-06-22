@@ -187,12 +187,8 @@
     <h2>Nova amostra</h2>
     <div class="upload-row">
       <div class="field">
-        <label>Relatório Bracken (*.report_bracken.txt)</label>
+        <label>Perfil taxonómico</label>
         <input type="file" id="file-input" accept=".txt">
-      </div>
-      <div class="field">
-        <label>Amostras semelhantes a mostrar</label>
-        <input type="number" id="k-input" value="5" min="1" max="10">
       </div>
       <button class="btn" id="analyze-btn" disabled>Analisar</button>
       <button class="btn ghost" id="example-btn" disabled>Carregar amostra de exemplo</button>
@@ -216,7 +212,7 @@
       <h2>Sumário da amostra</h2>
       <div class="kpis" id="kpis"></div>
       <div class="chips-head">
-        <span class="ttl">Níveis por grupo (vista rápida) — 18 grupos</span>
+        <span class="ttl">Níveis por grupo (vista rápida) — 17 grupos</span>
         <span class="scale-leg">baixo
           <span class="sw" style="background:var(--teal-baixo-bg)"></span>
           <span class="sw" style="background:var(--teal-mod-bg)"></span>
@@ -244,7 +240,7 @@
     <!-- §8 Perfil interpretado -->
     <div class="card">
       <h2>Perfil funcional interpretado</h2>
-      <p class="sub">Leitura em linguagem corrente, com o termo técnico entre parênteses. Abra cada grupo para ver os géneros que mais contribuem.</p>
+      <p class="sub">Abra cada grupo para ver os géneros que mais contribuem.</p>
       <div class="groups-grid" id="interpret-groups"></div>
     </div>
 
@@ -270,6 +266,7 @@
         <thead><tr><th style="width:58%">Indicador</th><th>% da comunidade</th></tr></thead>
         <tbody id="trait-body"></tbody>
       </table>
+      <div id="trait-toggle-wrap" class="no-print" style="margin-top:10px"></div>
     </div>
 
     <!-- §11 Ótimos ambientais -->
@@ -281,7 +278,7 @@
 
     <!-- §12 Evidência do match -->
     <div class="card">
-      <h2>Evidência do match (método)</h2>
+      <h2>Como chegámos a este resultado</h2>
       <p class="sub">O perfil funcional acima é importado das amostras mais semelhantes da coleção, por proximidade composicional (Bray-Curtis). Os traços nunca entram no cálculo do match.</p>
       <div class="evi-grid">
         <div>
@@ -317,22 +314,24 @@
 // ===========================================================================
 // Estado / dados estáticos
 // ===========================================================================
-let compData=null, pcoaData=null, groupScores=null, traitNames=null, traitNamesPt=null;
+let compData=null, pcoaData=null, groupScores=null, traitNames=null, traitNamesPt=null, genusGroups=null;
 let collShannon=null;     // Shannon de cada amostra da coleção
 let pcoaChart=null;
 const COLLECTION_SIZE = 252;
+const TRAITS_PREVIEW = 20;   // §10: indicadores visíveis antes de "Mostrar todos"
 
 const EXAMPLE_SID = '10';   // amostra de exemplo (§1) — não excluída da régua (§15)
 
 async function loadStaticData(){
   setStatus('A carregar dados de referência…','info');
   try {
-    [compData,pcoaData,groupScores,traitNames,traitNamesPt] = await Promise.all([
+    [compData,pcoaData,groupScores,traitNames,traitNamesPt,genusGroups] = await Promise.all([
       fetch('data/compositions.json').then(r=>r.json()),
       fetch('data/pcoa.json').then(r=>r.json()),
       fetch('data/group_scores.json').then(r=>r.json()),
       fetch('data/trait_names.json').then(r=>r.json()),
       fetch('data/trait_names_pt.json').then(r=>r.json()),
+      fetch('data/genus_groups.json').then(r=>r.json()),
     ]);
     collShannon = computeCollectionShannon();
     setStatus('Dados carregados. Selecione um ficheiro Bracken ou carregue a amostra de exemplo.','ok');
@@ -500,7 +499,7 @@ const CHIP_DEFS=[
   {id:'4',l:'Enxofre/anoxia'},{id:'6',l:'Fe/Mn redox'},{id:'5',l:'Metilotrofia'},{id:'9',l:'C autotrófico'},
   {id:'7',l:'Fósforo'},{id:'3a',l:'Decomp. fibras'},{id:'3b',l:'Decomp. proteínas'},{id:'3c',l:'Decomp. xenobiót.'},
   {id:'3d',l:'Decomp. geral'},{id:'8',l:'PGP'},{id:'10',l:'Stress'},{id:'2',l:'Arejamento'},
-  {id:'11',l:'Ótimos ambientais',abs:true},{id:'12',l:'Agregação'},
+  {id:'12',l:'Agregação'},
 ];
 const RADAR1=[['1a','N: fixação'],['1b','N: nitrificação'],['1c','N: desnitrif.'],['1d','N: amonificação'],
   ['4','Enxofre/anoxia'],['6','Fe/Mn redox'],['5','Metilotrofia'],['9','C autotróf.'],['7','Fósforo']];
@@ -601,18 +600,30 @@ function renderRadars(matchIdx, excludeIdx){
 // ===========================================================================
 // Render — cartões interpretados (§8) + drill-down de géneros
 // ===========================================================================
-function renderInterpretation(matchIdx, excludeIdx, groupGenera){
+function renderInterpretation(matchIdx, excludeIdx, inputGenera){
   const el=document.getElementById('interpret-groups'); el.innerHTML='';
+  // Drill-down §8: géneros que mais contribuem, a partir da AMOSTRA INPUT.
+  // Membership género→grupo é intrínseca (genus_groups.json, da BD de traços);
+  // o ranking é pela abundância do input.
+  const total=inputGenera.reduce((s,g)=>s+g.reads,0)||1;
+  const contrib={};   // gid -> [[genus, frac], ...]
+  for(const g of inputGenera){
+    const gids=genusGroups[g.name]; if(!gids) continue;
+    const frac=g.reads/total; if(frac<=0) continue;
+    for(const gid of gids){ (contrib[gid]=contrib[gid]||[]).push([g.name,frac]); }
+  }
+  for(const gid in contrib) contrib[gid].sort((a,b)=>b[1]-a[1]);
+
   for(const grp of GROUP_DEFS){
     const p=groupPct(grp.id,matchIdx,excludeIdx);
     if(p===null) continue;
     const lvl=levelFromPct(p);
-    const gg=groupGenera[grp.id]||{top:[],more:0};
+    const list=contrib[grp.id]||[];
     let drill='';
-    if(gg.top.length){
-      const show=gg.top.slice(0,5);
+    if(list.length){
+      const show=list.slice(0,5);
       const rows=show.map(([g,f])=>`<tr><td class="gen">${g}</td><td class="g-pct">${fmt(f*100,1)}%</td></tr>`).join('');
-      const remaining=gg.more+(gg.top.length-show.length);
+      const remaining=list.length-show.length;
       const more=remaining>0?`<tr><td colspan="2" class="g-more">(+${remaining} géneros)</td></tr>`:'';
       drill=`<details class="drill"><summary>Géneros que mais contribuem</summary>
         <table class="drill-table"><tbody>${rows}${more}</tbody></table></details>`;
@@ -717,16 +728,38 @@ function renderTraits(featureObj){
   rows.sort((a,b)=>b.sort-a.sort);
   const maxBar=rows.length?rows[0].pct:1;
   const tb=document.getElementById('trait-body'); tb.innerHTML='';
-  for(const r of rows){
+  rows.forEach((r,i)=>{
     const w=Math.max(1,Math.round(r.pct/maxBar*140));
     const tr=document.createElement('tr'); tr.dataset.name=r.name.toLowerCase();
+    if(i>=TRAITS_PREVIEW) tr.dataset.extra='1';
     tr.innerHTML=`<td>${r.name}</td><td><div class="bar-wrap"><span class="bar" style="width:${w}px"></span>${fmt(r.pct,1)}%</div></td>`;
     tb.appendChild(tr);
+  });
+
+  // §10: por defeito mostra os primeiros 20; botão expande/colapsa o resto.
+  // Durante a pesquisa, todas as linhas que correspondem ficam visíveis (limite ignorado).
+  const wrap=document.getElementById('trait-toggle-wrap');
+  const search=document.getElementById('trait-search');
+  let expanded=false;
+  const extra=rows.length-TRAITS_PREVIEW;
+  function apply(){
+    const q=search.value.trim().toLowerCase();
+    for(const tr of tb.querySelectorAll('tr')){
+      const matches=!q || tr.dataset.name.includes(q);
+      const withinLimit = q ? true : (expanded || tr.dataset.extra!=='1');
+      tr.classList.toggle('hidden', !(matches && withinLimit));
+    }
+    wrap.style.display = q ? 'none' : (extra>0 ? 'block' : 'none');
   }
-  document.getElementById('trait-search').oninput=function(){
-    const q=this.value.toLowerCase();
-    for(const tr of tb.querySelectorAll('tr')) tr.classList.toggle('hidden', q && !tr.dataset.name.includes(q));
-  };
+  wrap.innerHTML = extra>0 ? `<button class="btn ghost" id="trait-toggle"></button>` : '';
+  if(extra>0){
+    const btn=document.getElementById('trait-toggle');
+    const label=()=>{ btn.textContent = expanded ? 'Mostrar menos' : `Mostrar todos (${rows.length})`; };
+    label();
+    btn.onclick=()=>{ expanded=!expanded; label(); apply(); };
+  }
+  search.oninput=apply;
+  apply();
 }
 
 // ===========================================================================
@@ -779,7 +812,7 @@ function setStatus(msg,cls){ const el=document.getElementById('status'); el.text
 async function analyzeFromText(text, opts){
   const isExample = !!(opts&&opts.isExample);
   const sampleLabel = opts&&opts.label ? opts.label : 'amostra carregada';
-  const k=Math.max(1,Math.min(10,parseInt(document.getElementById('k-input').value)||5));
+  const k=5;   // nº de vizinhos usados no match (mostrados na secção "Como chegámos a este resultado")
   setStatus('A processar relatório Bracken…','info');
 
   const {genera}=parseBrackenReport(text);
@@ -796,17 +829,14 @@ async function analyzeFromText(text, opts){
   const excludeShannonIdx = isExample ? -1 : compData.samples.indexOf(top.id);  // collShannon segue a ordem de compData
 
   setStatus(`A importar perfil de traços da amostra ${top.id}…`,'info');
-  const [featureObj, groupGenera] = await Promise.all([
-    fetch(`data/traits/${top.id}.json`).then(r=>r.json()),
-    fetch(`data/group_genera/${top.id}.json`).then(r=>r.json()),
-  ]);
+  const featureObj = await fetch(`data/traits/${top.id}.json`).then(r=>r.json());
 
   const queryShannon=shannonFromGenera(genera);
   const ctx={parsedGenera:genera, queryShannon, featureObj, excludeShannonIdx};
   const div=renderKPIs(ctx);
   renderChips(matchIdx, excludeIdx);
   renderRadars(matchIdx, excludeIdx);
-  renderInterpretation(matchIdx, excludeIdx, groupGenera);
+  renderInterpretation(matchIdx, excludeIdx, genera);
   renderSunburst(genera);
   renderDiversity(div);
   renderTraits(featureObj);
