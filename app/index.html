@@ -36,6 +36,7 @@
   .field label { font-size:12px; color:var(--muted); }
   .field input[type="file"] { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg); cursor:pointer; }
   .field input[type="number"] { width:64px; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; }
+  .field select { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg); cursor:pointer; }
   .btn { background:var(--accent); color:#fff; border:none; border-radius:6px; padding:9px 18px;
     font-size:13px; font-weight:500; cursor:pointer; }
   .btn:hover:not(:disabled) { background:#1d4ed8; }
@@ -189,6 +190,14 @@
       <div class="field">
         <label>Perfil taxonómico</label>
         <input type="file" id="file-input" accept=".txt">
+      </div>
+      <div class="field">
+        <label>Vizinhos a combinar</label>
+        <select id="neighbor-count">
+          <option value="1" selected>1 (mais próximo)</option>
+          <option value="2">2 (média ponderada)</option>
+          <option value="3">3 (média ponderada)</option>
+        </select>
       </div>
       <button class="btn" id="analyze-btn" disabled>Analisar</button>
       <button class="btn ghost" id="example-btn" disabled>Carregar amostra de exemplo</button>
@@ -406,11 +415,23 @@ function findKNN(queryVec,k){
   dists.sort((a,b)=>a.dist-b.dist);
   return dists.slice(0,k);
 }
-function pcoaCentroid(neighbors){
+function pcoaCentroid(neighbors, weights){
   const idx=Object.fromEntries(pcoaData.samples.map((s,i)=>[s,i]));
-  let s1=0,s2=0;
-  for(const n of neighbors){ s1+=pcoaData.pc1[idx[n.id]]; s2+=pcoaData.pc2[idx[n.id]]; }
-  return {pc1:s1/neighbors.length, pc2:s2/neighbors.length};
+  let s1=0,s2=0;   // weights somam 1 → centróide ponderado
+  for(let i=0;i<neighbors.length;i++){ const j=idx[neighbors[i].id]; s1+=weights[i]*pcoaData.pc1[j]; s2+=weights[i]*pcoaData.pc2[j]; }
+  return {pc1:s1, pc2:s2};
+}
+// Pesos dos vizinhos = semelhança (1 − Bray-Curtis) normalizada. N=1 → [1].
+function neighborWeights(ns){
+  const sims=ns.map(n=>Math.max(1e-9, 1-n.dist));
+  const tot=sims.reduce((a,b)=>a+b,0);
+  return sims.map(x=>x/tot);
+}
+// Média ponderada de perfis de traços (frações 0–1; chaves ausentes = 0).
+function combineFeatureObjs(objs, weights){
+  const out={};
+  objs.forEach((o,i)=>{ const w=weights[i]; for(const k in o) out[k]=(out[k]||0)+w*o[k]; });
+  return out;
 }
 
 // ===========================================================================
@@ -437,8 +458,9 @@ function shannonFromGenera(parsedGenera){
 // ===========================================================================
 // Régua relativa (percentis)
 // ===========================================================================
-function percentileRank(value,refArray,excludeIdx){
-  const ref=excludeIdx>=0 ? refArray.filter((_,i)=>i!==excludeIdx) : refArray;
+function percentileRank(value,refArray,excludeIdxs){
+  const ex=excludeIdxs&&excludeIdxs.length ? new Set(excludeIdxs) : null;
+  const ref=ex ? refArray.filter((_,i)=>!ex.has(i)) : refArray;
   const below=ref.filter(v=>v<value).length;
   return below/ref.length;
 }
@@ -520,7 +542,7 @@ function traitLabel(slug){ return traitNamesPt[slug] || traitNames[slug] || slug
 function renderKPIs(ctx){
   const {parsedGenera, queryShannon, featureObj} = ctx;
   const nGenera=parsedGenera.length;
-  const divPct=percentileRank(queryShannon, collShannon, ctx.excludeShannonIdx);
+  const divPct=percentileRank(queryShannon, collShannon, ctx.excludeShannonIdxs);
   const divLvl=levelFromPct(divPct); const divLabel={baixo:'Baixa',moderado:'Moderada',alto:'Alta'}[divLvl];
 
   // indicadores >5% sobre o universo dos 360 traços apresentados (chaves de traitNamesPt)
@@ -554,22 +576,28 @@ function renderKPIs(ctx){
 // ===========================================================================
 // Régua de grupo (percentil do score do match na coleção)
 // ===========================================================================
-function groupPct(gid, matchIdx, excludeIdx){
+function groupScore(gid, idxs, weights){
   const ref=groupScores.groups[gid];
   if(!ref) return null;
-  return percentileRank(ref[matchIdx], ref, excludeIdx);
+  let s=0; for(let i=0;i<idxs.length;i++) s+=weights[i]*ref[idxs[i]];
+  return s;
+}
+function groupPct(gid, idxs, weights, excludeIdxs){
+  const ref=groupScores.groups[gid];
+  if(!ref) return null;
+  return percentileRank(groupScore(gid,idxs,weights), ref, excludeIdxs);
 }
 
 // ===========================================================================
 // Render — chips (§5.2)
 // ===========================================================================
-function renderChips(matchIdx, excludeIdx){
+function renderChips(idxs, weights, excludeIdxs){
   const el=document.getElementById('chips'); el.innerHTML='';
   for(const c of CHIP_DEFS){
     const div=document.createElement('div');
     if(c.abs){ div.className='chip abs'; div.title='Lido em escala absoluta (ver Ótimos ambientais)'; div.textContent=c.l; }
     else {
-      const p=groupPct(c.id,matchIdx,excludeIdx); const lvl=levelFromPct(p);
+      const p=groupPct(c.id,idxs,weights,excludeIdxs); const lvl=levelFromPct(p);
       div.className='chip '+lvl; div.textContent=c.l;
     }
     el.appendChild(div);
@@ -594,9 +622,9 @@ function radarSVG(axes, values, color){
     s+=`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-size="11" fill="#6b7280">${a}</text>`; });
   return s+`</svg>`;
 }
-function renderRadars(matchIdx, excludeIdx){
-  const v1=RADAR1.map(([gid])=>groupPct(gid,matchIdx,excludeIdx));
-  const v2=RADAR2.map(([gid])=>groupPct(gid,matchIdx,excludeIdx));
+function renderRadars(idxs, weights, excludeIdxs){
+  const v1=RADAR1.map(([gid])=>groupPct(gid,idxs,weights,excludeIdxs));
+  const v2=RADAR2.map(([gid])=>groupPct(gid,idxs,weights,excludeIdxs));
   document.getElementById('radar1').innerHTML=radarSVG(RADAR1.map(a=>a[1]),v1,'#2563eb');
   document.getElementById('radar2').innerHTML=radarSVG(RADAR2.map(a=>a[1]),v2,'#16a34a');
 }
@@ -604,7 +632,7 @@ function renderRadars(matchIdx, excludeIdx){
 // ===========================================================================
 // Render — cartões interpretados (§8) + drill-down de géneros
 // ===========================================================================
-function renderInterpretation(matchIdx, excludeIdx, inputGenera){
+function renderInterpretation(idxs, weights, excludeIdxs, inputGenera){
   const el=document.getElementById('interpret-groups'); el.innerHTML='';
   // Drill-down §8: géneros que mais contribuem, a partir da AMOSTRA INPUT.
   // Membership género→grupo é intrínseca (genus_groups.json, da BD de traços);
@@ -619,7 +647,7 @@ function renderInterpretation(matchIdx, excludeIdx, inputGenera){
   for(const gid in contrib) contrib[gid].sort((a,b)=>b[1]-a[1]);
 
   for(const grp of GROUP_DEFS){
-    const p=groupPct(grp.id,matchIdx,excludeIdx);
+    const p=groupPct(grp.id,idxs,weights,excludeIdxs);
     if(p===null) continue;
     const lvl=levelFromPct(p);
     const list=contrib[grp.id]||[];
@@ -802,10 +830,11 @@ function renderPCoA(neighbors,newPt){
       y:{title:{display:true,text:`PC2 (${pcVarLabel(1)})`,font:{size:11}},grid:{color:'#f3f4f6'}}}}});
   document.getElementById('pcoa-note').textContent=`PC1 ${pcVarLabel(0)} · PC2 ${pcVarLabel(1)} · posição da nova amostra = centróide dos vizinhos`;
 }
-function renderNeighbors(neighbors){
+function renderNeighbors(neighbors, matchN){
   const tb=document.getElementById('neighbors-body'); tb.innerHTML='';
-  neighbors.forEach((n,i)=>{ const tr=document.createElement('tr'); if(i===0) tr.classList.add('highlight');
-    tr.innerHTML=`<td>${i+1}</td><td>${n.id}</td><td>${fmt(n.dist,4)}</td>`; tb.appendChild(tr); });
+  neighbors.forEach((n,i)=>{ const tr=document.createElement('tr'); if(i<matchN) tr.classList.add('highlight');
+    const mark=i<matchN?' ✓':'';
+    tr.innerHTML=`<td>${i+1}</td><td>${n.id}${mark}</td><td>${fmt(n.dist,4)}</td>`; tb.appendChild(tr); });
 }
 
 // ===========================================================================
@@ -817,7 +846,8 @@ function setStatus(msg,cls){ const el=document.getElementById('status'); el.text
 async function analyzeFromText(text, opts){
   const isExample = !!(opts&&opts.isExample);
   const sampleLabel = opts&&opts.label ? opts.label : 'amostra carregada';
-  const k=5;   // nº de vizinhos usados no match (mostrados na secção "Como chegámos a este resultado")
+  const kDisplay=5;   // nº de vizinhos mostrados na secção "Como chegámos a este resultado"
+  const matchN=Math.max(1,Math.min(3,parseInt(document.getElementById('neighbor-count').value)||1));  // vizinhos combinados no perfil
   setStatus('A processar relatório Bracken…','info');
 
   const {genera}=parseBrackenReport(text);
@@ -825,36 +855,43 @@ async function analyzeFromText(text, opts){
   const matched=queryVec.filter(v=>v>0).length;
   setStatus(`${genera.length} géneros detetados, ${matched} correspondidos na referência. A calcular distâncias…`,'info');
 
-  const neighbors=findKNN(queryVec,k);
-  const newPt=pcoaCentroid(neighbors);
-  const top=neighbors[0];
-  const matchIdx=groupScores.samples.indexOf(top.id);
-  // §15: a amostra consultada é excluída da régua; exceção: amostra de exemplo (10)
-  const excludeIdx = isExample ? -1 : matchIdx;
-  const excludeShannonIdx = isExample ? -1 : compData.samples.indexOf(top.id);  // collShannon segue a ordem de compData
+  const neighbors=findKNN(queryVec,kDisplay);
+  const match=neighbors.slice(0,matchN);             // vizinhos usados para importar o perfil
+  const weights=neighborWeights(match);              // pesos = (1 − Bray-Curtis) normalizados
+  const newPt=pcoaCentroid(match,weights);
+  const top=match[0];
+  const matchIndices=match.map(n=>groupScores.samples.indexOf(n.id));
+  // §15: amostras consultadas excluídas da régua; exceção: amostra de exemplo (10)
+  const excludeIdxs        = isExample ? [] : matchIndices;
+  const excludeShannonIdxs = isExample ? [] : match.map(n=>compData.samples.indexOf(n.id));  // collShannon segue a ordem de compData
 
-  setStatus(`A importar perfil de traços da amostra ${top.id}…`,'info');
-  const featureObj = await fetch(`data/traits/${top.id}.json`).then(r=>r.json());
+  setStatus(matchN===1?`A importar perfil de traços da amostra ${top.id}…`
+                      :`A combinar perfis de ${matchN} vizinhos (ponderado)…`,'info');
+  const featureObjs = await Promise.all(match.map(n=>fetch(`data/traits/${n.id}.json`).then(r=>r.json())));
+  const featureObj = matchN===1 ? featureObjs[0] : combineFeatureObjs(featureObjs, weights);
 
   const queryShannon=shannonFromGenera(genera);
-  const ctx={parsedGenera:genera, queryShannon, featureObj, excludeShannonIdx};
+  const ctx={parsedGenera:genera, queryShannon, featureObj, excludeShannonIdxs};
   const div=renderKPIs(ctx);
-  renderChips(matchIdx, excludeIdx);
-  renderRadars(matchIdx, excludeIdx);
-  renderInterpretation(matchIdx, excludeIdx, genera);
+  renderChips(matchIndices, weights, excludeIdxs);
+  renderRadars(matchIndices, weights, excludeIdxs);
+  renderInterpretation(matchIndices, weights, excludeIdxs, genera);
   renderSunburst(genera);
   renderDiversity(div);
   renderTraits(featureObj);
   renderEnv(featureObj);
   renderPCoA(neighbors,newPt);
-  renderNeighbors(neighbors);
+  renderNeighbors(neighbors, matchN);
 
+  const matchDesc = matchN===1
+    ? `vizinho mais próximo: ${top.id} (Bray-Curtis ${fmt(top.dist,4)})`
+    : `${matchN} vizinhos combinados (ponderado): ${match.map(n=>n.id).join(', ')}`;
   document.getElementById('results-section').style.display='flex';
   document.getElementById('export-btn').style.display='inline-block';
   document.getElementById('print-head-meta').innerHTML=
-    `Amostra: ${sampleLabel} · vizinho mais próximo: ${top.id} (Bray-Curtis ${fmt(top.dist,4)}) · `+
+    `Amostra: ${sampleLabel} · ${matchDesc} · `+
     `coleção ${COLLECTION_SIZE} amostras (ERR4588xxx) · ${new Date().toLocaleDateString('pt-PT')}`;
-  setStatus(`Concluído. Amostra mais semelhante: ${top.id} (Bray-Curtis = ${fmt(top.dist,4)}). ${matched} géneros de referência correspondidos.`,'ok');
+  setStatus(`Concluído. ${matchN===1?`Amostra mais semelhante: ${top.id} (Bray-Curtis = ${fmt(top.dist,4)})`:`Perfil combinado de ${matchN} vizinhos: ${match.map(n=>n.id).join(', ')}`}. ${matched} géneros de referência correspondidos.`,'ok');
 }
 
 document.getElementById('file-input').addEventListener('change',()=>{
