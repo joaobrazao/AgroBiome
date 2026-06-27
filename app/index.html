@@ -192,7 +192,7 @@
         <input type="file" id="file-input" accept=".txt">
       </div>
       <div class="field">
-        <label>Vizinhos a combinar</label>
+        <label>Amostras a combinar</label>
         <select id="neighbor-count">
           <option value="1" selected>1</option>
           <option value="2">2</option>
@@ -306,8 +306,8 @@
 
     <!-- Rodapé de impressão (só em PDF) -->
     <div class="print-only print-foot">
-      AppGenomics · projeto Vouchers para Startups (PRR/IAPMEI) · amostras processadas com Kraken2/Bracken
-      e perfil funcional inferido com metaTraits.
+      AppGenomics · projeto Vouchers para Startups (PRR/IAPMEI) · base de dados de referência
+      processada com Kraken2/Bracken e metaTraits.
     </div>
 
   </div><!-- /results-section -->
@@ -315,7 +315,7 @@
 </main>
 
 <footer class="screen">
-  <span id="footer-text">AppGenomics · projeto Vouchers para Startups (PRR/IAPMEI) · amostras processadas com Kraken2/Bracken e perfil funcional inferido com metaTraits.</span>
+  <span id="footer-text">AppGenomics · projeto Vouchers para Startups (PRR/IAPMEI) · base de dados de referência processada com Kraken2/Bracken e metaTraits.</span>
   <button class="btn" id="export-btn" onclick="window.print()" style="display:none">Exportar PDF</button>
 </footer>
 
@@ -326,10 +326,8 @@
 let compData=null, pcoaData=null, groupScores=null, traitNames=null, traitNamesPt=null, genusGroups=null;
 let collShannon=null;     // Shannon de cada amostra da coleção
 let pcoaChart=null;
-const COLLECTION_SIZE = 252;
+let COLLECTION_SIZE = 0;     // nº de amostras da coleção; definido ao carregar os dados
 const TRAITS_PREVIEW = 20;   // §10: indicadores visíveis antes de "Mostrar todos"
-
-const EXAMPLE_SID = '10';   // amostra de exemplo (§1) — não excluída da régua (§15)
 
 // Traços a não mostrar na app (irrelevantes para solo / clínicos). Filtrados em §10 e na contagem de indicadores (§5).
 const EXCLUDED_TRAITS = new Set(['growth_blood_agar','presence_of_hemolysis']);
@@ -346,6 +344,7 @@ async function loadStaticData(){
       fetch('data/genus_groups.json').then(r=>r.json()),
     ]);
     collShannon = computeCollectionShannon();
+    COLLECTION_SIZE = groupScores.samples.length;
     setStatus('Dados carregados. Selecione um ficheiro Bracken ou carregue a amostra de exemplo.','ok');
     document.getElementById('example-btn').disabled=false;
   } catch(e){
@@ -847,7 +846,7 @@ function renderPCoA(neighbors,newPt){
       tooltip:{callbacks:{label:ctx=>{const r=ctx.raw;const l=r.label?`Amostra ${r.label}`:ctx.dataset.label;return `${l} (${r.x.toFixed(3)}, ${r.y.toFixed(3)})`;}}}},
     scales:{x:{title:{display:true,text:`PC1 (${pcVarLabel(0)})`,font:{size:11}},grid:{color:'#f3f4f6'}},
       y:{title:{display:true,text:`PC2 (${pcVarLabel(1)})`,font:{size:11}},grid:{color:'#f3f4f6'}}}}});
-  document.getElementById('pcoa-note').textContent=`PC1 ${pcVarLabel(0)} · PC2 ${pcVarLabel(1)} · posição da nova amostra = projeção de Gower sobre todas as distâncias`;
+  document.getElementById('pcoa-note').textContent=`PC1 ${pcVarLabel(0)} · PC2 ${pcVarLabel(1)} · posição da nova amostra estimada a partir das distâncias a toda a coleção`;
 }
 function renderNeighbors(neighbors, matchN){
   const tb=document.getElementById('neighbors-body'); tb.innerHTML='';
@@ -882,12 +881,12 @@ async function analyzeFromText(text, opts){
   const newPt=projectGower(distById);                // posição PCoA = projeção de Gower (todas as distâncias)
   const top=match[0];
   const matchIndices=match.map(n=>groupScores.samples.indexOf(n.id));
-  // §15: amostras consultadas excluídas da régua; exceção: amostra de exemplo (10)
+  // §15: amostras consultadas excluídas da régua; exceção: a amostra de exemplo
   const excludeIdxs        = isExample ? [] : matchIndices;
   const excludeShannonIdxs = isExample ? [] : match.map(n=>compData.samples.indexOf(n.id));  // collShannon segue a ordem de compData
 
   setStatus(matchN===1?`A importar perfil de traços da amostra ${top.id}…`
-                      :`A combinar perfis de ${matchN} vizinhos (ponderado)…`,'info');
+                      :`A combinar perfis de ${matchN} amostras…`,'info');
   const featureObjs = await Promise.all(match.map(n=>fetch(`data/traits/${n.id}.json`).then(r=>r.json())));
   const featureObj = matchN===1 ? featureObjs[0] : combineFeatureObjs(featureObjs, weights);
 
@@ -905,14 +904,14 @@ async function analyzeFromText(text, opts){
   renderNeighbors(neighbors, matchN);
 
   const matchDesc = matchN===1
-    ? `vizinho mais próximo: ${top.id} (Bray-Curtis ${fmt(top.dist,4)})`
-    : `${matchN} vizinhos combinados (ponderado): ${match.map(n=>n.id).join(', ')}`;
+    ? `amostra de referência: ${top.id} (Bray-Curtis ${fmt(top.dist,4)})`
+    : `${matchN} amostras de referência combinadas: ${match.map(n=>n.id).join(', ')}`;
   document.getElementById('results-section').style.display='flex';
   document.getElementById('export-btn').style.display='inline-block';
   document.getElementById('print-head-meta').innerHTML=
     `Amostra: ${sampleLabel} · ${matchDesc} · `+
-    `coleção ${COLLECTION_SIZE} amostras (ERR4588xxx) · ${new Date().toLocaleDateString('pt-PT')}`;
-  setStatus(`Concluído. ${matchN===1?`Amostra mais semelhante: ${top.id} (Bray-Curtis = ${fmt(top.dist,4)})`:`Perfil combinado de ${matchN} vizinhos: ${match.map(n=>n.id).join(', ')}`}. ${matched} géneros de referência correspondidos.`,'ok');
+    `coleção de ${COLLECTION_SIZE} amostras · ${new Date().toLocaleDateString('pt-PT')}`;
+  setStatus(`Concluído. ${matchN===1?`Amostra de referência: ${top.id} (Bray-Curtis = ${fmt(top.dist,4)})`:`Perfil combinado de ${matchN} amostras: ${match.map(n=>n.id).join(', ')}`}. ${matched} géneros de referência correspondidos.`,'ok');
 }
 
 document.getElementById('file-input').addEventListener('change',()=>{
@@ -929,7 +928,7 @@ document.getElementById('example-btn').addEventListener('click',async()=>{
   const btn=document.getElementById('example-btn'); btn.disabled=true;
   try {
     const text=await fetch('data/example_bracken.txt').then(r=>{ if(!r.ok) throw new Error('exemplo não encontrado'); return r.text(); });
-    await analyzeFromText(text, {isExample:true, label:`Exemplo (amostra ${EXAMPLE_SID})`});
+    await analyzeFromText(text, {isExample:true, label:'Amostra de exemplo'});
   } catch(e){ setStatus('Erro: '+e.message,'error'); }
   finally { btn.disabled=false; }
 });
