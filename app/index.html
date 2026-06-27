@@ -322,6 +322,9 @@ const TRAITS_PREVIEW = 20;   // §10: indicadores visíveis antes de "Mostrar to
 
 const EXAMPLE_SID = '10';   // amostra de exemplo (§1) — não excluída da régua (§15)
 
+// Traços a não mostrar na app (irrelevantes para solo / clínicos). Filtrados em §10 e na contagem de indicadores (§5).
+const EXCLUDED_TRAITS = new Set(['growth_blood_agar','presence_of_hemolysis']);
+
 async function loadStaticData(){
   setStatus('A carregar dados de referência…','info');
   try {
@@ -523,6 +526,7 @@ function renderKPIs(ctx){
   // indicadores >5% sobre o universo dos 360 traços apresentados (chaves de traitNamesPt)
   let n5=0;
   for(const slug of Object.keys(traitNamesPt)){
+    if(EXCLUDED_TRAITS.has(slug)) continue;
     const v=featureObj[slug+'.true'];
     if(v!==undefined && v>0.05) n5++;
   }
@@ -722,6 +726,7 @@ function renderTraits(featureObj){
   const rows=[];
   for(const [slug,states] of Object.entries(bySlug)){
     if('mean' in states) continue;             // numéricos vão para §11
+    if(EXCLUDED_TRAITS.has(slug)) continue;     // traços excluídos da app
     const tf=states.true||0;
     if(tf>0) rows.push({name:traitLabel(slug), pct:tf*100, sort:tf});
   }
