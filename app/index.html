@@ -194,9 +194,9 @@
       <div class="field">
         <label>Vizinhos a combinar</label>
         <select id="neighbor-count">
-          <option value="1" selected>1 (mais próximo)</option>
-          <option value="2">2 (média ponderada)</option>
-          <option value="3">3 (média ponderada)</option>
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
         </select>
       </div>
       <button class="btn" id="analyze-btn" disabled>Analisar</button>
@@ -405,21 +405,29 @@ function brayCurtis(a,b){
   for(let i=0;i<a.length;i++){ num+=Math.abs(a[i]-b[i]); den+=a[i]+b[i]; }
   return den===0?0:num/den;
 }
-function findKNN(queryVec,k){
+// Distâncias Bray-Curtis a TODAS as amostras da coleção (ordem de compData.samples).
+function allDists(queryVec){
   const {genera,samples,matrix}=compData; const n=genera.length;
-  const dists=samples.map((sid,j)=>{
-    const ref=new Array(n);
-    for(let i=0;i<n;i++) ref[i]=matrix[i][j];
-    return {id:sid,dist:brayCurtis(queryVec,ref)};
+  return samples.map((sid,j)=>{
+    let num=0,den=0;
+    for(let i=0;i<n;i++){ const a=queryVec[i],b=matrix[i][j]; num+=Math.abs(a-b); den+=a+b; }
+    return {id:sid, dist:den===0?0:num/den};
   });
-  dists.sort((a,b)=>a.dist-b.dist);
-  return dists.slice(0,k);
 }
-function pcoaCentroid(neighbors, weights){
-  const idx=Object.fromEntries(pcoaData.samples.map((s,i)=>[s,i]));
-  let s1=0,s2=0;   // weights somam 1 → centróide ponderado
-  for(let i=0;i<neighbors.length;i++){ const j=idx[neighbors[i].id]; s1+=weights[i]*pcoaData.pc1[j]; s2+=weights[i]*pcoaData.pc2[j]; }
-  return {pc1:s1, pc2:s2};
+// Projeção out-of-sample (fórmula de Gower) no espaço PCoA da coleção. Usa as
+// distâncias a todas as referências → posição geométrica fiel (mostra outliers),
+// independente de quantos vizinhos se combinam no perfil. Divide por sqrt(eval)
+// para bater com a convenção das coords de referência (U*sqrt(eval)).
+function projectGower(distById){
+  const P=pcoaData.proj, ids=pcoaData.samples, N=ids.length;
+  const d2=ids.map(id=>{ const d=distById[id]; return d*d; });
+  const md2=d2.reduce((a,b)=>a+b,0)/N;
+  let s1=0,s2=0;
+  for(let j=0;j<N;j++){
+    const a=-0.5*(d2[j]-md2-P.col_mean_d2[j]+P.grand_mean_d2);
+    s1+=P.evec1[j]*a; s2+=P.evec2[j]*a;
+  }
+  return {pc1:s1/Math.sqrt(P.eval1), pc2:s2/Math.sqrt(P.eval2)};
 }
 // Pesos dos vizinhos = semelhança (1 − Bray-Curtis) normalizada. N=1 → [1].
 function neighborWeights(ns){
@@ -828,7 +836,7 @@ function renderPCoA(neighbors,newPt){
       tooltip:{callbacks:{label:ctx=>{const r=ctx.raw;const l=r.label?`Amostra ${r.label}`:ctx.dataset.label;return `${l} (${r.x.toFixed(3)}, ${r.y.toFixed(3)})`;}}}},
     scales:{x:{title:{display:true,text:`PC1 (${pcVarLabel(0)})`,font:{size:11}},grid:{color:'#f3f4f6'}},
       y:{title:{display:true,text:`PC2 (${pcVarLabel(1)})`,font:{size:11}},grid:{color:'#f3f4f6'}}}}});
-  document.getElementById('pcoa-note').textContent=`PC1 ${pcVarLabel(0)} · PC2 ${pcVarLabel(1)} · posição da nova amostra = centróide dos vizinhos`;
+  document.getElementById('pcoa-note').textContent=`PC1 ${pcVarLabel(0)} · PC2 ${pcVarLabel(1)} · posição da nova amostra = projeção de Gower sobre todas as distâncias`;
 }
 function renderNeighbors(neighbors, matchN){
   const tb=document.getElementById('neighbors-body'); tb.innerHTML='';
@@ -855,10 +863,12 @@ async function analyzeFromText(text, opts){
   const matched=queryVec.filter(v=>v>0).length;
   setStatus(`${genera.length} géneros detetados, ${matched} correspondidos na referência. A calcular distâncias…`,'info');
 
-  const neighbors=findKNN(queryVec,kDisplay);
+  const dists=allDists(queryVec);
+  const distById=Object.fromEntries(dists.map(d=>[d.id,d.dist]));
+  const neighbors=[...dists].sort((a,b)=>a.dist-b.dist).slice(0,kDisplay);
   const match=neighbors.slice(0,matchN);             // vizinhos usados para importar o perfil
   const weights=neighborWeights(match);              // pesos = (1 − Bray-Curtis) normalizados
-  const newPt=pcoaCentroid(match,weights);
+  const newPt=projectGower(distById);                // posição PCoA = projeção de Gower (todas as distâncias)
   const top=match[0];
   const matchIndices=match.map(n=>groupScores.samples.indexOf(n.id));
   // §15: amostras consultadas excluídas da régua; exceção: amostra de exemplo (10)

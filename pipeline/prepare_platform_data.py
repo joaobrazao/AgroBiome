@@ -26,6 +26,7 @@ DOCS       = ROOT / "docs"
 
 COMP_FILE   = DERIVED / "composition_matrix.tsv"
 PCOA_FILE   = DERIVED / "pcoa_coordinates.tsv"
+PCOA_MODEL_FILE = DERIVED / "pcoa_model.npz"
 TRAIT_FILE  = DERIVED / "community_matrix.tsv"
 CLASSIF_FILE = DOCS / "classificacao_tracos.csv"
 TRAIT_NAMES_FILE = OUT_DIR / "trait_names.json"
@@ -99,23 +100,40 @@ def build_compositions():
 
 def build_pcoa():
     print("pcoa.json...", file=sys.stderr)
+    import numpy as np
+
     with open(PCOA_FILE) as f:
         reader = csv.reader(f, delimiter='\t')
-        header = next(reader)   # sample, PC1, PC2, ...
-        pc1_idx, pc2_idx = 1, 2
-
+        next(reader)   # sample, PC1, PC2, ...
         samples, pc1, pc2 = [], [], []
         for row in reader:
             samples.append(row[0])
-            pc1.append(round(float(row[pc1_idx]), 6))
-            pc2.append(round(float(row[pc2_idx]), 6))
+            pc1.append(round(float(row[1]), 6))
+            pc2.append(round(float(row[2]), 6))
 
-    # Percentagem de variância explicada (hardcoded dos logs do build_beta_diversity)
-    data = {"samples": samples, "pc1": pc1, "pc2": pc2,
-            "pct_var": [19.7, 11.9]}
+    # Modelo PCoA: pct_var real (obs.4) + arrays para projeção out-of-sample (Gower)
+    # da amostra nova no browser. A ordem das amostras tem de bater com o modelo,
+    # pois eigvecs/col_mean_d2 seguem essa ordem.
+    model = np.load(PCOA_MODEL_FILE, allow_pickle=True)
+    if [str(x) for x in model['sample_ids']] != samples:
+        sys.exit("Ordem de amostras pcoa_coordinates.tsv != pcoa_model.npz; regenerar beta diversity.")
+    eigvals, eigvecs = model['eigvals'], model['eigvecs']
+    total_var = float(eigvals[eigvals > 1e-10].sum())
+    pct_var = [round(float(eigvals[i] / total_var * 100), 1) for i in range(2)]
+
+    proj = {
+        "evec1": [round(float(v), 8) for v in eigvecs[:, 0]],
+        "evec2": [round(float(v), 8) for v in eigvecs[:, 1]],
+        "eval1": float(eigvals[0]),
+        "eval2": float(eigvals[1]),
+        "col_mean_d2": [round(float(v), 8) for v in model['col_mean_d2']],
+        "grand_mean_d2": float(model['grand_mean_d2'][0]),
+    }
+    data = {"samples": samples, "pc1": pc1, "pc2": pc2, "pct_var": pct_var, "proj": proj}
     out = OUT_DIR / "pcoa.json"
     out.write_text(json.dumps(data, separators=(',', ':')))
-    print(f"  {len(samples)} amostras → {out.stat().st_size} bytes", file=sys.stderr)
+    print(f"  {len(samples)} amostras · pct_var={pct_var} → {out.stat().st_size // 1024} KB",
+          file=sys.stderr)
 
 
 def build_traits():

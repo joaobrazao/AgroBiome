@@ -69,7 +69,10 @@ def project_new_sample(x_new, X_ref, col_mean_d2, grand_mean_d2, eigvals, eigvec
     pos = eigvals > 1e-10
     lam = eigvals[pos]
     U = eigvecs[:, pos]
-    coords_new = (U.T @ a) / lam
+    # Escala: as coords de referência são U*sqrt(lam); para um ponto in-sample
+    # (U.T @ a) = U[i]*lam, logo divide-se por sqrt(lam) (não por lam) para bater
+    # com a convenção das referências. Validado: erro ~5e-9 vs coords originais.
+    coords_new = (U.T @ a) / np.sqrt(lam)
     return coords_new
 
 
