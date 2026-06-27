@@ -475,15 +475,23 @@ function percentileRank(value,refArray,excludeIdxs){
 function levelFromPct(p){ return p<1/3?'baixo':(p<2/3?'moderado':'alto'); }
 
 // ===========================================================================
-// Bandas absolutas (grupo 11 — cortes por afinar)
+// Grupo 11 — pH e temperatura: bandas ABSOLUTAS (escala universal: 0–14 / °C).
+// Salinidade: ver salinityBand (régua RELATIVA — a escala % NaCl não discrimina
+// solo de vinha, todas ligeiramente halófilas; o valor absoluto continua exibido).
 // ===========================================================================
 const PH_BANDS=[{max:6.0,cls:'acido',label:'ácido'},{max:6.5,cls:'lig_acido',label:'ligeiramente ácido'},
   {max:7.5,cls:'neutro',label:'neutro'},{max:Infinity,cls:'alcalino',label:'alcalino'}];
 const TEMP_BANDS=[{max:20,cls:'psicro',label:'psicrófila'},{max:40,cls:'meso',label:'mesófila'},
   {max:Infinity,cls:'termo',label:'termófila'}];
-const SAL_BANDS=[{max:2,cls:'sal_baixa',label:'baixa'},{max:5,cls:'sal_mod',label:'moderada'},
-  {max:Infinity,cls:'sal_alta',label:'alta'}];
 function getBand(v,bands){ if(v==null) return {cls:'',label:'sem dados'}; return bands.find(b=>v<b.max)||bands[bands.length-1]; }
+// Salinidade: classificação relativa (percentil da coleção g11.sal, vizinhos
+// consultados excluídos — igual aos outros grupos). Reutiliza as cores sal_*.
+const SAL_LVL={baixo:{cls:'sal_baixa',label:'baixa'},moderado:{cls:'sal_mod',label:'moderada'},alto:{cls:'sal_alta',label:'alta'}};
+function salinityBand(sal,excludeIdxs){
+  if(sal==null||!groupScores.g11||!groupScores.g11.sal) return {cls:'',label:'sem dados',pct:null};
+  const pct=percentileRank(sal,groupScores.g11.sal,excludeIdxs);
+  return {...SAL_LVL[levelFromPct(pct)],pct};
+}
 
 // ===========================================================================
 // Definição dos grupos (18 = 17 discretos + grupo 11)
@@ -548,7 +556,7 @@ function traitLabel(slug){ return traitNamesPt[slug] || traitNames[slug] || slug
 // Render — KPIs (§5.1)
 // ===========================================================================
 function renderKPIs(ctx){
-  const {parsedGenera, queryShannon, featureObj} = ctx;
+  const {parsedGenera, queryShannon, featureObj, excludeIdxs} = ctx;
   const nGenera=parsedGenera.length;
   const divPct=percentileRank(queryShannon, collShannon, ctx.excludeShannonIdxs);
   const divLvl=levelFromPct(divPct); const divLabel={baixo:'Baixa',moderado:'Moderada',alto:'Alta'}[divLvl];
@@ -561,7 +569,7 @@ function renderKPIs(ctx){
     if(v!==undefined && v>0.05) n5++;
   }
   const ph=featureObj['ph_growth.mean'], temp=featureObj['temperature_growth.mean'], sal=featureObj['salinity_growth.mean'];
-  const phB=getBand(ph,PH_BANDS), tempB=getBand(temp,TEMP_BANDS), salB=getBand(sal,SAL_BANDS);
+  const phB=getBand(ph,PH_BANDS), tempB=getBand(temp,TEMP_BANDS), salB=salinityBand(sal,excludeIdxs);
 
   document.getElementById('kpis').innerHTML=`
     <div class="kpi"><div class="k-label">Géneros detetados</div>
@@ -806,14 +814,17 @@ function renderTraits(featureObj){
 // ===========================================================================
 // Render — ótimos ambientais (§11)
 // ===========================================================================
-function renderEnv(featureObj){
+function renderEnv(featureObj, excludeIdxs){
   const ph=featureObj['ph_growth.mean'], temp=featureObj['temperature_growth.mean'], sal=featureObj['salinity_growth.mean'];
-  const phB=getBand(ph,PH_BANDS), tempB=getBand(temp,TEMP_BANDS), salB=getBand(sal,SAL_BANDS);
+  const phB=getBand(ph,PH_BANDS), tempB=getBand(temp,TEMP_BANDS), salB=salinityBand(sal,excludeIdxs);
+  // Salinidade: rótulo relativo (régua) + valor absoluto em % NaCl + percentil.
+  const salDetail = sal!=null
+    ? ` · ~${fmt(sal,1)} % NaCl${salB.pct!=null?` · percentil ${Math.round(salB.pct*100)}º`:''}` : '';
   const tb=document.getElementById('env-body');
   tb.innerHTML=`
     <tr><td style="width:170px">pH preferencial</td><td><span class="band ${phB.cls}">${phB.label}</span>${ph!=null?` · ~${fmt(ph,1)}`:''}</td></tr>
     <tr><td>Temperatura</td><td><span class="band ${tempB.cls}">${tempB.label}</span>${temp!=null?` · ~${fmt(temp,0)} °C`:''}</td></tr>
-    <tr><td>Salinidade</td><td><span class="band ${salB.cls}">${salB.label}</span>${sal!=null?` · ~${fmt(sal,1)}`:''}</td></tr>`;
+    <tr><td>Salinidade</td><td><span class="band ${salB.cls}">${salB.label}</span>${salDetail}</td></tr>`;
 }
 
 // ===========================================================================
@@ -881,7 +892,7 @@ async function analyzeFromText(text, opts){
   const featureObj = matchN===1 ? featureObjs[0] : combineFeatureObjs(featureObjs, weights);
 
   const queryShannon=shannonFromGenera(genera);
-  const ctx={parsedGenera:genera, queryShannon, featureObj, excludeShannonIdxs};
+  const ctx={parsedGenera:genera, queryShannon, featureObj, excludeShannonIdxs, excludeIdxs};
   const div=renderKPIs(ctx);
   renderChips(matchIndices, weights, excludeIdxs);
   renderRadars(matchIndices, weights, excludeIdxs);
@@ -889,7 +900,7 @@ async function analyzeFromText(text, opts){
   renderSunburst(genera);
   renderDiversity(div);
   renderTraits(featureObj);
-  renderEnv(featureObj);
+  renderEnv(featureObj, excludeIdxs);
   renderPCoA(neighbors,newPt);
   renderNeighbors(neighbors, matchN);
 
