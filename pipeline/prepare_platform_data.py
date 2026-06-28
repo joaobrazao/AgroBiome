@@ -19,6 +19,9 @@ import re
 import csv
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+from sample_registry import ensure_registry, number_of
+
 ROOT       = Path(__file__).resolve().parent.parent
 OUT_DIR    = ROOT / "app" / "data"
 DERIVED    = ROOT / "data" / "derived"
@@ -46,10 +49,15 @@ def slug(s):
     return re.sub(r'[^a-z0-9]+', '_', s.lower()).strip('_')
 
 
+_REG = None
 def sample_prefix(name):
-    """'10_ERR15663939_db3' → '10'"""
-    m = re.match(r'^(\d+)', name)
-    return m.group(1) if m else name
+    """Número estável da amostra (registo accession → número, sample_registry.py).
+    Não é o prefixo do nome — aceita o nome longo da community_matrix / per_sample
+    ('10_ERR4588521_db3.bracken.kraken2…') e devolve o número do registo."""
+    global _REG
+    if _REG is None:
+        _REG = ensure_registry()
+    return number_of(name, _REG)
 
 
 def build_keep_slugs():

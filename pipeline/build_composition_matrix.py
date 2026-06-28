@@ -17,33 +17,24 @@ Output: data/derived/composition_matrix.tsv
 """
 
 import sys
-import os
-import re
 from pathlib import Path
 
 # Reutiliza o parser existente
 sys.path.insert(0, str(Path(__file__).parent))
 from bracken_to_profile import parse_bracken_report
+from sample_registry import ensure_registry, number_of
 
 ROOT        = Path(__file__).resolve().parent.parent
 SAMPLES_DIR = ROOT / "data" / "raw" / "samples"
 OUTPUT_FILE = ROOT / "data" / "derived" / "composition_matrix.tsv"
 
 
-def sample_id(filename):
-    """Prefixo numérico do nome do ficheiro (ex: '1', '23'); fallback ao nome."""
-    m = re.match(r'^(\d+)_', filename)
-    return m.group(1) if m else filename.split('.')[0]
-
-
-def sort_key(p):
-    """Ordena prefixos numéricos por valor; nomes não-numéricos a seguir, por ordem."""
-    sid = sample_id(p.name)
-    return (0, int(sid)) if sid.isdigit() else (1, sid)
-
-
 def main():
-    files = sorted(SAMPLES_DIR.glob("*.report_bracken.txt"), key=sort_key)
+    # ID da amostra = número estável do registo (accession → número). Ver
+    # sample_registry.py. NÃO o prefixo numérico do nome (que pode colidir).
+    reg = ensure_registry(SAMPLES_DIR)
+    files = sorted(SAMPLES_DIR.glob("*.report_bracken.txt"),
+                   key=lambda p: int(number_of(p.name, reg)))
 
     if not files:
         sys.exit(f"Erro: nenhuma amostra encontrada em {SAMPLES_DIR}.")
@@ -56,7 +47,7 @@ def main():
     all_genera = set()
 
     for f in files:
-        sid = sample_id(f.name)
+        sid = number_of(f.name, reg)
         total_reads, genera = parse_bracken_report(str(f))
 
         # Construir dict genus_name → reads; colapsar duplicados de nome (improvável mas seguro)

@@ -20,6 +20,7 @@ inferido", não função medida).
 │  │  │   ├─ alentejo_samples/     cohort antigo arquivado — fora do glob
 │  │  │   └─ excluded_degenerate/  amostras degeneradas excluídas — fora do glob
 │  │  └─ ncbi_genus_summary.jsonl  BD de traços metaTraits (só género, ~105 MB)
+│  ├─ sample_registry.tsv  registo accession → número de amostra (consultar aqui)
 │  └─ derived/           Saídas geradas (matrizes, distâncias, PCoA, por-amostra)
 │     ├─ composition_matrix.tsv    géneros × amostras (abundância relativa)
 │     ├─ bray_curtis_distances.tsv
@@ -55,9 +56,23 @@ A lista de amostras do piloto **é** o conteúdo de `data/raw/samples/`. Para
 adicionar, remover ou substituir amostras basta mexer nos ficheiros dessa pasta
 e voltar a correr o pipeline — não há listas de amostras hard-coded nos scripts.
 
+**Identidade da amostra (registo).** Cada amostra é identificada pela sua
+**accession** (ENA/SRA: `ERR…`), não pelo prefixo numérico do nome (que pode
+colidir entre cohorts). O pipeline mantém um registo accession → número estável
+em `data/sample_registry.tsv` (ver `pipeline/sample_registry.py`): largas
+ficheiros na pasta e, ao correr o pipeline, cada accession nova recebe o próximo
+número livre, enquanto as antigas mantêm o seu para sempre. **Não é preciso
+numerar nem coordenar nomes à mão.** Para saber a que amostra corresponde um
+número mostrado na plataforma, consulta esse ficheiro.
+
 ### Correr
 
 Requer Python 3.10+ com `numpy`, `pandas`, `scipy`.
+
+**Atalho:** `./pipeline/regenerate.sh` corre toda a cadeia abaixo de uma vez (e
+trata da consolidação da `community_matrix`). Usa `--no-batch` para saltar a
+anotação de traços e reusar a `community_matrix` existente. Os passos manuais
+seguintes ficam para referência ou execução parcial.
 
 ```bash
 # (1+2+3) anotação de traços + community_matrix
