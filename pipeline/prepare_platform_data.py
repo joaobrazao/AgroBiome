@@ -60,6 +60,24 @@ def sample_prefix(name):
     return number_of(name, _REG)
 
 
+_ACTIVE = None
+def active_samples():
+    """Conjunto de IDs da coleção ATIVA (cabeçalho da composition_matrix = ficheiros
+    atuais em samples/). Usado para ignorar artefactos per_sample obsoletos de
+    amostras já removidas — evita órfãos em app/data."""
+    global _ACTIVE
+    if _ACTIVE is None:
+        with open(COMP_FILE) as f:
+            _ACTIVE = set(next(csv.reader(f, delimiter='\t'))[1:])
+    return _ACTIVE
+
+
+def _clean_json_dir(d):
+    """Remove .json antigos para a pasta refletir só a coleção atual (sem órfãos)."""
+    for old in d.glob("*.json"):
+        old.unlink()
+
+
 def build_keep_slugs():
     """
     Lê classificacao_tracos.csv e devolve o conjunto de feature slugs a manter.
@@ -150,6 +168,7 @@ def build_traits():
     print("traits/<sid>.json...", file=sys.stderr)
     traits_dir = OUT_DIR / "traits"
     traits_dir.mkdir(exist_ok=True)
+    _clean_json_dir(traits_dir)
 
     keep_slugs = build_keep_slugs()
     print(f"  Slugs relevantes: {len(keep_slugs)}", file=sys.stderr)
@@ -165,6 +184,8 @@ def build_traits():
         sizes = []
         for row in reader:
             sid = sample_prefix(row[0])
+            if sid not in active_samples():
+                continue
             vals = {}
             for i, feat in zip(keep_idx, keep_feats):
                 fv = float(row[i + 1])  # +1: row[0] é o sample name
@@ -207,6 +228,7 @@ def build_group_genera():
     """
     print("group_genera/<sid>.json...", file=sys.stderr)
     GROUP_GENERA_DIR.mkdir(exist_ok=True)
+    _clean_json_dir(GROUP_GENERA_DIR)
 
     # 1. grupo -> set de nomes de traço discretos (exclui grupo 11 numérico)
     group_traits = {}   # gid -> set(trait_name)
@@ -236,6 +258,8 @@ def build_group_genera():
     written = 0
     for fp in files:
         sid = sample_prefix(fp.name)
+        if sid not in active_samples():   # ignora per_sample obsoleto (amostra removida)
+            continue
         abund = genus_abund.get(sid, {})
         genus_groups = {}   # genus -> set(gid) positivos
         with open(fp) as f:
@@ -290,7 +314,8 @@ def build_genus_groups():
             trait_groups.setdefault(row['trait'], set()).add(row['group_id'])
 
     genus_groups = {}   # genus -> set(gid)
-    files = sorted(PER_SAMPLE_DIR.glob("*_taxon_trait_annotations.tsv"))
+    files = [fp for fp in sorted(PER_SAMPLE_DIR.glob("*_taxon_trait_annotations.tsv"))
+             if sample_prefix(fp.name) in active_samples()]   # ignora obsoletos
     for fp in files:
         with open(fp) as f:
             reader = csv.reader(f, delimiter='\t')
@@ -315,7 +340,13 @@ def build_group_scores():
     Pré-calcula os scores dos 18 grupos interpretativos para as amostras da coleção.
     Usa tracos_por_grupo.csv para mapear grupos a traços e trait_names.json
     para converter display-name -> slug.
-    Guardado em group_scores.json para cálculo dinâmico de percentis no browser.
+
+    Score de cada grupo = MÉDIA das frações `.true` dos traços BOOLEANOS do grupo.
+    Traços factor/numéricos não têm coluna `.true` na community_matrix e ficam,
+    por isso, fora do score (o relatório imprime "N traços no CSV → M colunas .true"
+    para tornar isto visível). O grupo 11 (ótimos ambientais) é numérico e tratado
+    à parte (ph/temp/sal). Guardado em group_scores.json para cálculo dinâmico de
+    percentis no browser.
     """
     print("group_scores.json...", file=sys.stderr)
 

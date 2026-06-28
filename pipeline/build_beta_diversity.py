@@ -3,8 +3,8 @@
 build_beta_diversity.py — espaço de diversidade beta (Bray-Curtis + PCoA).
 
 Outputs:
-  bray_curtis_distances.tsv  — matriz 47×47 de distâncias
-  pcoa_coordinates.tsv       — coordenadas PCoA das 47 amostras (todos os eixos positivos)
+  bray_curtis_distances.tsv  — matriz n×n de distâncias entre amostras
+  pcoa_coordinates.tsv       — coordenadas PCoA das amostras (todos os eixos positivos)
   pcoa_model.npz             — modelo para projetar amostras novas (eigenvectors, etc.)
 
 Funções exportáveis:

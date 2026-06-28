@@ -330,7 +330,13 @@ let COLLECTION_SIZE = 0;     // nº de amostras da coleção; definido ao carreg
 const TRAITS_PREVIEW = 20;   // §10: indicadores visíveis antes de "Mostrar todos"
 
 // Traços a não mostrar na app (irrelevantes para solo / clínicos). Filtrados em §10 e na contagem de indicadores (§5).
-const EXCLUDED_TRAITS = new Set(['growth_blood_agar','presence_of_hemolysis']);
+// Traços não mostrados na app. Os 2 primeiros são clínicos; os 5 seguintes foram
+// retirados da tradução (tracos_traducao.csv) e recategorizados como sem_relevancia
+// em classificacao_tracos.csv — listados aqui para correção imediata sem regenerar
+// (na próxima regeneração já nem entram no featureObj). Ver revisão do pipeline.
+const EXCLUDED_TRAITS = new Set(['growth_blood_agar','presence_of_hemolysis',
+  'enzyme_activity_catalase_ec1_11_1_6','enzyme_activity_oxidase','produces_melanin',
+  'required_for_growth_biotin','required_for_growth_cobalamin']);
 
 async function loadStaticData(){
   setStatus('A carregar dados de referência…','info');

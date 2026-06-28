@@ -23,16 +23,24 @@ SAMPLES_DIR   = ROOT / "data" / "raw" / "samples"
 REGISTRY_PATH = ROOT / "data" / "sample_registry.tsv"
 
 ACCESSION_RE = re.compile(r'([EDS]RR\d+)')      # ENA/SRA run accessions
-_SUFFIX_RE   = re.compile(r'\.report_bracken.*$')
+# Sufixos que o pipeline acrescenta ao nome da amostra. Removidos no fallback para
+# que a MESMA amostra dê a mesma identidade quer venha do relatório, da coluna da
+# community_matrix, ou de um ficheiro per_sample.
+_STEM_RE = re.compile(
+    r'(\.report_bracken.*'
+    r'|_taxon_trait_annotations\.tsv'
+    r'|_community_trait_annotations\.tsv'
+    r'|_profile\.tsv)$'
+)
 _LEADING_NUM = re.compile(r'^(\d+)_')
 
 
 def accession_of(name):
     """Accession (ERR/SRR/DRR) do nome de ficheiro/coluna.
-    Fallback (sem accession): nome sem o sufixo .report_bracken* — também único,
+    Fallback (sem accession): nome sem os sufixos do pipeline — também único,
     por imposição do sistema de ficheiros."""
     m = ACCESSION_RE.search(name)
-    return m.group(1) if m else _SUFFIX_RE.sub('', name)
+    return m.group(1) if m else _STEM_RE.sub('', name)
 
 
 def _leading_number(name):

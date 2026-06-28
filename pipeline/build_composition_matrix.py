@@ -12,8 +12,8 @@ Para cada *.report_bracken.txt:
   - Renormaliza a coluna para somar 1.0
 
 Output: data/derived/composition_matrix.tsv
-  Linhas = géneros (taxon_name), colunas = amostras (prefixo numérico do ficheiro).
-  Géneros ausentes numa amostra → 0.0.
+  Linhas = géneros (taxon_name), colunas = amostras (número do registo, ver
+  sample_registry.py — accession → número estável). Géneros ausentes → 0.0.
 """
 
 import sys
