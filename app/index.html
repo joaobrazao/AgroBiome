@@ -37,6 +37,26 @@
   .field input[type="file"] { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg); cursor:pointer; }
   .field input[type="number"] { width:64px; border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; }
   .field select { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg); cursor:pointer; }
+  .field input[type="text"], .field input[type="date"], .field textarea {
+    border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg); font-family:inherit; }
+  .field textarea { resize:vertical; }
+  /* Metadados agronómicos (formulário opcional) */
+  #meta-details { margin-top:18px; border-top:1px solid var(--border); padding-top:14px; }
+  #meta-details summary { cursor:pointer; font-size:13px; font-weight:600; color:var(--accent); }
+  #meta-details .meta-opt { color:var(--muted); font-weight:400; }
+  .meta-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:6px; }
+  .meta-grid .meta-wide { grid-column:1 / -1; }
+  .meta-actions { display:flex; gap:10px; margin-top:14px; }
+  .meta-actions .btn { padding:7px 14px; font-size:12.5px; }
+  @media (max-width:820px) { .meta-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:460px) { .meta-grid { grid-template-columns:1fr; } }
+  /* Cartão de identificação no relatório */
+  .meta-readout { display:grid; grid-template-columns:repeat(3,1fr); gap:10px 24px; }
+  @media (max-width:820px) { .meta-readout { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:460px) { .meta-readout { grid-template-columns:1fr; } }
+  .meta-readout .mi-wide { grid-column:1 / -1; }
+  .meta-readout dt { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; }
+  .meta-readout dd { margin:2px 0 0; font-size:14px; color:var(--text,#111827); }
   .btn { background:var(--accent); color:#fff; border:none; border-radius:6px; padding:9px 18px;
     font-size:13px; font-weight:500; cursor:pointer; }
   .btn:hover:not(:disabled) { background:#1d4ed8; }
@@ -142,8 +162,25 @@
   tr.highlight td { background:#eff6ff; }
   .pcoa-note { font-size:11px; color:var(--muted); margin-top:8px; }
 
+  /* Base de referência */
+  #refbase-card { background:#f0faf2; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .refbase-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+  @media (max-width:820px) { .refbase-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:460px) { .refbase-grid { grid-template-columns:1fr; } }
+  .refbase-grid .kpi .k-value { font-size:24px; }
+  .refbase-meth { font-size:12.5px; color:#374151; line-height:1.6; }
+  .refbase-meth ul { margin:8px 0 0; padding-left:18px; }
+  .refbase-meth li { margin:2px 0; }
+
+  /* Faixa de financiamento PRR (ecrã + PDF) */
+  .funding { max-width:1080px; margin:0 auto 40px; padding:18px 20px 0; border-top:1px solid var(--border);
+    display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .funding img { width:100%; max-width:560px; height:auto; }
+  .funding p { font-size:11px; color:var(--muted); max-width:760px; line-height:1.5; }
+
   /* Rodapé */
-  footer.screen { max-width:1080px; margin:0 auto 40px; padding:0 20px; display:flex;
+  footer.screen { max-width:1080px; margin:0 auto 16px; padding:0 20px; display:flex;
     justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
     font-size:11.5px; color:var(--muted); }
   .demo-tag { display:inline-block; background:#fef3c7; color:#92400e; font-size:10px; font-weight:600;
@@ -152,18 +189,48 @@
   #results-section { display:none; flex-direction:column; gap:24px; }
   .print-only { display:none; }
 
+  /* Rodapé de ações + blocos partilhados ecrã/PDF */
+  .footer-actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .limits-list { margin:0; padding-left:18px; font-size:12.5px; color:#374151; line-height:1.6; }
+  .limits-list li { margin:4px 0; }
+  #exec-summary { font-size:13px; color:var(--text); line-height:1.65; }
+  #exec-summary p { margin:0 0 8px; }
+  #exec-summary p:last-child { margin-bottom:0; }
+  #exec-summary .exec-lead { font-size:14.5px; font-weight:600; color:var(--ink); }
+
   /* Impressão / Exportação PDF */
   @media print {
     :root { --bg:#fff; }
+    @page { margin:16mm 14mm 18mm; }
     body { background:#fff; }
-    .no-print, #upload-card, #trait-search, .btn, footer.screen { display:none !important; }
+    .no-print, #upload-card, #trait-search, .btn, footer.screen, header { display:none !important; }
     .print-only { display:block; }
-    main { margin:0 auto; max-width:100%; }
+    main { margin:0 auto; max-width:100%; padding:0; }
     .card { box-shadow:none; border:1px solid #ccc; break-inside:avoid; }
-    header { border-bottom:2px solid #000; }
-    .print-head { padding:0 20px; margin-bottom:8px; font-size:11px; color:#333; }
-    .print-head h2 { font-size:14px; color:#000; margin-bottom:2px; letter-spacing:0; text-transform:none; }
-    .print-foot { padding:12px 20px 0; font-size:10px; color:#555; border-top:1px solid #ccc; margin-top:16px; }
+
+    /* Capa */
+    .print-cover { display:flex; flex-direction:column; justify-content:space-between;
+      min-height:248mm; break-after:page; padding:0; text-align:left; }
+    .pc-top { display:flex; justify-content:space-between; align-items:baseline;
+      border-bottom:3px solid #0f2a43; padding-bottom:10px; }
+    .pc-brand { font-size:22px; font-weight:800; color:#0f2a43; letter-spacing:-.02em; }
+    .pc-tag { font-size:12px; color:#5f6775; text-transform:uppercase; letter-spacing:.12em; }
+    .pc-mid h1 { font-size:30px; line-height:1.2; color:#0f2a43; font-weight:800; letter-spacing:-.02em; }
+    .pc-mid .pc-sub { font-size:14px; color:#5f6775; margin-top:12px; max-width:520px; }
+    .pc-meta { margin-top:34px; display:grid; grid-template-columns:140px 1fr; gap:8px 16px; font-size:13px; }
+    .pc-meta dt { color:#5f6775; font-weight:600; }
+    .pc-meta dd { color:#161b26; margin:0; }
+    .pc-bottom { -webkit-print-color-adjust:exact; print-color-adjust:exact; border-top:1px solid #ccc; padding-top:14px; }
+    .pc-bottom img { width:100%; max-width:460px; height:auto; }
+    .pc-bottom p { font-size:10px; color:#5f6775; margin-top:8px; max-width:560px; line-height:1.5; }
+
+    /* Cabeçalho corrente após a capa */
+    .print-head { display:flex; justify-content:space-between; gap:16px; align-items:baseline;
+      padding:0 0 8px; margin-bottom:16px; font-size:10.5px; color:#444;
+      border-bottom:1px solid #ccc; }
+
+    .funding { break-inside:avoid; border-top:1px solid #ccc; }
+    .print-foot { padding:12px 0 0; font-size:10px; color:#555; border-top:1px solid #ccc; margin-top:16px; }
     #trait-body tr.hidden { display:table-row; }
   }
 </style>
@@ -175,10 +242,29 @@
   <p>Inferir traços funcionais por comparação com a coleção piloto de viticultura</p>
 </header>
 
-<!-- Cabeçalho de impressão (só em PDF) -->
+<!-- Capa do relatório (só em PDF) -->
+<div class="print-only print-cover">
+  <div class="pc-top">
+    <div class="pc-brand">AgroBiome Digital</div>
+    <div class="pc-tag">AppGenomics</div>
+  </div>
+  <div class="pc-mid">
+    <h1>Relatório de Perfil Funcional do Microbioma do Solo</h1>
+    <p class="pc-sub">Inferência de traços funcionais por comparação composicional com a coleção de referência de viticultura</p>
+    <dl class="pc-meta" id="cover-meta"></dl>
+  </div>
+  <div class="pc-bottom">
+    <img src="assets/barra_logos_prr.png"
+         alt="PRR — Plano de Recuperação e Resiliência · República Portuguesa · Financiado pela União Europeia — NextGenerationEU">
+    <p>Projeto AgroBiome Digital, apoiado pelo Plano de Recuperação e Resiliência (PRR), no âmbito dos
+      Vouchers para Startups, com financiamento da União Europeia — NextGenerationEU, através do IAPMEI.</p>
+  </div>
+</div>
+
+<!-- Cabeçalho corrente de impressão (só em PDF, após a capa) -->
 <div class="print-only print-head">
-  <h2>AppGenomics · Perfil Funcional do Microbioma do Solo</h2>
-  <div id="print-head-meta"></div>
+  <span>AgroBiome Digital · Perfil Funcional do Microbioma do Solo</span>
+  <span id="print-head-meta"></span>
 </div>
 
 <main>
@@ -202,18 +288,69 @@
       <button class="btn" id="analyze-btn" disabled>Analisar</button>
       <button class="btn ghost" id="example-btn" disabled>Carregar amostra de exemplo</button>
     </div>
+
+    <details id="meta-details" open>
+      <summary>Metadados agronómicos <span class="meta-opt">(opcional)</span></summary>
+      <p class="sub" style="margin-top:10px">Contexto da amostra, preenchido por si. Não influencia a análise —
+        serve para identificar a parcela no relatório, no PDF e no ficheiro de dados exportado.</p>
+      <div class="meta-grid">
+        <div class="field"><label for="m-nome">Nome da amostra / parcela</label><input type="text" id="m-nome" placeholder="ex.: Talhão Norte"></div>
+        <div class="field"><label for="m-regiao">Região / DOC</label><input type="text" id="m-regiao" placeholder="ex.: Douro"></div>
+        <div class="field"><label for="m-cultura">Cultura</label><input type="text" id="m-cultura" placeholder="ex.: Vinha"></div>
+        <div class="field"><label for="m-casta">Casta(s)</label><input type="text" id="m-casta" placeholder="ex.: Touriga Nacional"></div>
+        <div class="field"><label for="m-data">Data de colheita</label><input type="date" id="m-data"></div>
+        <div class="field"><label for="m-solo">Tipo de solo</label><input type="text" id="m-solo" placeholder="ex.: franco-argiloso"></div>
+        <div class="field"><label for="m-modo">Modo de produção</label>
+          <select id="m-modo"><option value="">—</option><option>Convencional</option><option>Produção integrada</option><option>Biológico</option><option>Biodinâmico</option></select></div>
+        <div class="field"><label for="m-coberto">Coberto vegetal</label>
+          <select id="m-coberto"><option value="">—</option><option>Sim</option><option>Parcial</option><option>Não</option></select></div>
+        <div class="field"><label for="m-rega">Rega</label>
+          <select id="m-rega"><option value="">—</option><option>Sequeiro</option><option>Gota-a-gota</option><option>Aspersão</option><option>Outra</option></select></div>
+        <div class="field"><label for="m-fert">Fertilização / bioestimulantes recentes</label><input type="text" id="m-fert" placeholder="ex.: composto, há 2 meses"></div>
+        <div class="field meta-wide"><label for="m-obs">Observações</label><textarea id="m-obs" rows="2" placeholder="Notas adicionais sobre a parcela ou a colheita."></textarea></div>
+      </div>
+      <div class="meta-actions">
+        <button type="button" class="btn ghost" id="meta-example-btn" onclick="fillExampleMetadata()">Preencher com exemplo</button>
+        <button type="button" class="btn ghost" id="meta-clear-btn" onclick="clearMetadata()">Limpar</button>
+      </div>
+    </details>
+
     <div id="status" class="hidden"></div>
+  </div>
+
+  <!-- Base de referência e metodologia (sempre visível) -->
+  <div class="card" id="refbase-card">
+    <h2>Base de dados de referência</h2>
+    <p class="sub">Coleção de referência AgroBiome — amostras de solo de vinha consolidadas de
+      repositórios públicos (ENA/SRA) e de amostras próprias num espaço comparativo comum.</p>
+    <div class="refbase-grid" id="refbase-grid"></div>
+    <div class="refbase-meth">
+      A comparação é feita por <b>composição taxonómica ao nível de género</b>; a leitura funcional
+      é <b>inferida por proximidade</b> com amostras de referência anotadas por traços funcionais.
+    </div>
   </div>
 
   <!-- Resultados -->
   <div id="results-section">
+
+    <!-- Resumo executivo (só em PDF) -->
+    <div class="card print-only" id="exec-card">
+      <h2>Resumo executivo</h2>
+      <div id="exec-summary"></div>
+    </div>
+
+    <!-- Identificação e metadados (só se preenchidos) -->
+    <div class="card" id="meta-card" style="display:none">
+      <h2>Identificação da amostra</h2>
+      <dl class="meta-readout" id="meta-readout"></dl>
+    </div>
 
     <!-- §4 Faixa persistente -->
     <div class="framing-bar">
       <span>&#9888;</span>
       <span>Os indicadores exprimem o <b>potencial microbiano inferido</b> a partir da composição da
       comunidade — leitura comparativa face à coleção, <b>não</b> uma medição química ou de atividade do
-      solo. A plataforma descreve o estado microbiano; não constitui recomendação agronómica.</span>
+      solo. A plataforma descreve o estado microbiano.</span>
     </div>
 
     <!-- §5 Painel-sumário -->
@@ -304,10 +441,24 @@
       </div>
     </div>
 
+    <!-- Metodologia e limitações (só em PDF) -->
+    <div class="card print-only" id="limits-card">
+      <h2>Metodologia</h2>
+      <p class="sub">Enquadramento da leitura. Ler em conjunto com os resultados acima.</p>
+      <ul class="limits-list">
+        <li><b>Marcador e resolução:</b> 16S rRNA, análise ao nível de género; não há resolução fiável a nível de espécie.</li>
+        <li><b>Comparação:</b> distância <b>Bray-Curtis</b> sobre a composição de géneros; ordenação por <b>PCoA</b>, com a amostra nova posicionada por projeção fora-da-amostra (fórmula de Gower).</li>
+        <li><b>Anotação funcional:</b> traços <b>inferidos por proximidade</b> a amostras de referência anotadas (base metaTraits, ao nível de género). Não constitui medição direta de atividade biológica do solo.</li>
+        <li><b>Régua relativa:</b> os níveis (baixo/moderado/alto) são percentis face à coleção de referência, não valores absolutos universais.</li>
+        <li><b>Controlo de qualidade:</b> amostras com falha de sequenciação são excluídas da referência.</li>
+        <li><b>Natureza do relatório:</b> leitura comparativa de potencial microbiano inferido, para apoio à decisão.</li>
+      </ul>
+    </div>
+
     <!-- Rodapé de impressão (só em PDF) -->
     <div class="print-only print-foot">
-      AppGenomics · projeto Vouchers para Startups (PRR/IAPMEI) · base de dados de referência
-      processada com Kraken2/Bracken e metaTraits.
+      AppGenomics · base de dados de referência processada com Kraken2/Bracken e metaTraits ·
+      leitura comparativa de potencial funcional inferido, não medição direta.
     </div>
 
   </div><!-- /results-section -->
@@ -315,9 +466,20 @@
 </main>
 
 <footer class="screen">
-  <span id="footer-text">AppGenomics · projeto Vouchers para Startups (PRR/IAPMEI) · base de dados de referência processada com Kraken2/Bracken e metaTraits.</span>
-  <button class="btn" id="export-btn" onclick="window.print()" style="display:none">Exportar PDF</button>
+  <span id="footer-text">AppGenomics · base de dados de referência processada com Kraken2/Bracken e metaTraits.</span>
+  <span class="footer-actions">
+    <button class="btn ghost" id="export-json-btn" onclick="exportReportJSON()" style="display:none">Exportar dados (JSON)</button>
+    <button class="btn" id="export-btn" onclick="window.print()" style="display:none">Exportar PDF</button>
+  </span>
 </footer>
+
+<!-- Faixa de financiamento PRR (ecrã + PDF) -->
+<div class="funding">
+  <img src="assets/barra_logos_prr.png"
+       alt="PRR — Plano de Recuperação e Resiliência · República Portuguesa · Financiado pela União Europeia — NextGenerationEU">
+  <p>Projeto AgroBiome Digital, apoiado pelo Plano de Recuperação e Resiliência (PRR), no âmbito dos
+    Vouchers para Startups, com financiamento da União Europeia — NextGenerationEU, através do IAPMEI.</p>
+</div>
 
 <script>
 // ===========================================================================
@@ -326,6 +488,7 @@
 let compData=null, pcoaData=null, groupScores=null, traitNames=null, traitNamesPt=null, genusGroups=null;
 let collShannon=null;     // Shannon de cada amostra da coleção
 let pcoaChart=null;
+let lastReport=null;      // último relatório gerado (fonte do export JSON)
 let COLLECTION_SIZE = 0;     // nº de amostras da coleção; definido ao carregar os dados
 const TRAITS_PREVIEW = 20;   // §10: indicadores visíveis antes de "Mostrar todos"
 
@@ -351,6 +514,7 @@ async function loadStaticData(){
     ]);
     collShannon = computeCollectionShannon();
     COLLECTION_SIZE = groupScores.samples.length;
+    renderReferenceCard();
     setStatus('Dados carregados. Selecione um ficheiro Bracken ou carregue a amostra de exemplo.','ok');
     document.getElementById('example-btn').disabled=false;
   } catch(e){
@@ -558,6 +722,23 @@ const RADAR2=[['3a','Decomp. fibras'],['3b','Decomp. proteínas'],['3c','Decomp.
 function traitLabel(slug){ return traitNamesPt[slug] || traitNames[slug] || slug.replace(/_/g,' '); }
 
 // ===========================================================================
+// Render — Base de referência (números derivados dos dados, sem hardcodes)
+// ===========================================================================
+function renderReferenceCard(){
+  const nSamples = COLLECTION_SIZE;
+  const nGenera  = compData.genera.length;
+  const nGroups  = CHIP_DEFS.length;   // grupos/subgrupos funcionais discretos
+  const nIndic   = Object.keys(traitNamesPt).filter(s=>!EXCLUDED_TRAITS.has(s)).length;
+  const kpi=(label,value,note)=>`<div class="kpi"><div class="k-label">${label}</div>`+
+    `<div class="k-value">${value}</div><div class="k-note">${note}</div></div>`;
+  document.getElementById('refbase-grid').innerHTML =
+    kpi('Amostras de referência', nSamples.toLocaleString('pt-PT'), 'solo de vinha, coleção ativa')+
+    kpi('Géneros na matriz', nGenera.toLocaleString('pt-PT'), 'espaço de comparação composicional')+
+    kpi('Indicadores funcionais', nIndic.toLocaleString('pt-PT'), 'traços apresentados na plataforma')+
+    kpi('Grupos funcionais', nGroups+' + ótimos', 'grupos/subgrupos + ótimos ambientais');
+}
+
+// ===========================================================================
 // Render — KPIs (§5.1)
 // ===========================================================================
 function renderKPIs(ctx){
@@ -591,7 +772,8 @@ function renderKPIs(ctx){
         <div class="er"><span>salinidade</span><b class="band ${salB.cls}">${salB.label}</b></div>
       </div>
       <div class="k-note" style="margin-top:7px">preferência inferida · detalhe abaixo</div></div>`;
-  return {divLabel, divPct, queryShannon, nGenera};
+  return {divLabel, divPct, queryShannon, nGenera, n5,
+    env:{ph:{mean:ph,label:phB.label}, temp:{mean:temp,label:tempB.label}, sal:{mean:sal,label:salB.label,pct:salB.pct}}};
 }
 
 // ===========================================================================
@@ -867,9 +1049,54 @@ function renderNeighbors(neighbors, matchN){
 function fmt(v,d){ return (v==null||isNaN(v))?'—':v.toFixed(d).replace('.',','); }
 function setStatus(msg,cls){ const el=document.getElementById('status'); el.textContent=msg; el.className=cls; }
 
+// Metadados agronómicos (opcionais) — id do input ↔ rótulo
+const META_FIELDS=[
+  ['nome','Nome da amostra / parcela'],['regiao','Região / DOC'],['cultura','Cultura'],
+  ['casta','Casta(s)'],['data','Data de colheita'],['solo','Tipo de solo'],
+  ['modo','Modo de produção'],['coberto','Coberto vegetal'],['rega','Rega'],
+  ['fert','Fertilização / bioestimulantes recentes'],['obs','Observações'],
+];
+let sampleMetadata={};
+function readMetadata(){
+  const m={};
+  for(const [k] of META_FIELDS){ const v=(document.getElementById('m-'+k).value||'').trim(); if(v) m[k]=v; }
+  return m;
+}
+// Valores ilustrativos para o botão "Preencher com exemplo"
+const META_EXAMPLE={
+  nome:'Talhão Norte', regiao:'Douro', cultura:'Vinha', casta:'Touriga Nacional',
+  data:'2026-03-15', solo:'franco-argiloso', modo:'Produção integrada',
+  coberto:'Parcial', rega:'Gota-a-gota', fert:'composto orgânico, há 2 meses',
+  obs:'Parcela em encosta, exposição sul.',
+};
+function fillExampleMetadata(){
+  for(const [k] of META_FIELDS){ document.getElementById('m-'+k).value = META_EXAMPLE[k]||''; }
+  document.getElementById('meta-details').open=true;
+}
+function clearMetadata(){
+  for(const [k] of META_FIELDS){ document.getElementById('m-'+k).value=''; }
+}
+function renderMetadata(meta){
+  const card=document.getElementById('meta-card'), dl=document.getElementById('meta-readout');
+  const entries=META_FIELDS.filter(([k])=>meta[k]);
+  if(!entries.length){ card.style.display='none'; dl.innerHTML=''; return; }
+  dl.innerHTML=entries.map(([k,label])=>{
+    let val=meta[k];
+    if(k==='data'){ const d=new Date(val); if(!isNaN(d)) val=d.toLocaleDateString('pt-PT'); }
+    const wide=(k==='obs')?' class="mi-wide"':'';
+    return `<div${wide}><dt>${label}</dt><dd>${esc(val)}</dd></div>`;
+  }).join('');
+  card.style.display='';
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
 async function analyzeFromText(text, opts){
   const isExample = !!(opts&&opts.isExample);
-  const sampleLabel = opts&&opts.label ? opts.label : 'amostra carregada';
+  sampleMetadata = readMetadata();
+  renderMetadata(sampleMetadata);
+  document.getElementById('meta-details').open = false;   // recolher o formulário após análise
+  const sampleLabel = sampleMetadata.nome ? sampleMetadata.nome
+                    : (opts&&opts.label ? opts.label : 'amostra carregada');
   const kDisplay=5;   // nº de vizinhos mostrados na secção "Como chegámos a este resultado"
   const matchN=Math.max(1,Math.min(3,parseInt(document.getElementById('neighbor-count').value)||1));  // vizinhos combinados no perfil
   setStatus('A processar relatório Bracken…','info');
@@ -912,12 +1139,88 @@ async function analyzeFromText(text, opts){
   const matchDesc = matchN===1
     ? `amostra de referência: ${top.id} (Bray-Curtis ${fmt(top.dist,4)})`
     : `${matchN} amostras de referência combinadas: ${match.map(n=>n.id).join(', ')}`;
+
+  // Objeto de relatório — fonte única para capa, resumo executivo e export JSON
+  lastReport = {
+    app:'AgroBiome Digital', schema_version:'1.0',
+    generated_at:new Date().toISOString(),
+    sample:{ label:sampleLabel, is_example:isExample, metadata:sampleMetadata },
+    methodology:{ marker:'16S rRNA', taxonomic_level:'género',
+      distance:'Bray-Curtis', ordination:'PCoA (projeção fora-da-amostra de Gower)',
+      functional_annotation:'inferida por proximidade (metaTraits, nível de género)' },
+    collection_size:COLLECTION_SIZE,
+    detection:{ genera_detected:genera.length, genera_matched_reference:matched },
+    match:{ combined:matchN, neighbors:match.map(n=>({id:n.id, bray_curtis:n.dist})),
+      neighbors_shown:neighbors.map(n=>({id:n.id, bray_curtis:n.dist})) },
+    diversity:{ level:div.divLabel, shannon:div.queryShannon, percentile:div.divPct },
+    environmental_optima:div.env,
+    functional_indicators:{ above_5pct:div.n5,
+      traits:Object.keys(traitNamesPt).filter(s=>!EXCLUDED_TRAITS.has(s) && featureObj[s+'.true']!==undefined)
+        .map(s=>({slug:s, name_pt:traitNamesPt[s], fraction:featureObj[s+'.true']}))
+        .sort((a,b)=>b.fraction-a.fraction) },
+    disclaimer:'Leitura comparativa de potencial microbiano inferido. Não constitui medição direta de atividade biológica do solo nem substitui análises laboratoriais.'
+  };
+
+  renderCover(lastReport, matchDesc);
+  renderExecSummary(lastReport);
   document.getElementById('results-section').style.display='flex';
   document.getElementById('export-btn').style.display='inline-block';
+  document.getElementById('export-json-btn').style.display='inline-block';
   document.getElementById('print-head-meta').innerHTML=
-    `Amostra: ${sampleLabel} · ${matchDesc} · `+
-    `coleção de ${COLLECTION_SIZE} amostras · ${new Date().toLocaleDateString('pt-PT')}`;
+    `${esc(sampleLabel)} · ${new Date().toLocaleDateString('pt-PT')}`;
   setStatus(`Concluído. ${matchN===1?`Amostra de referência: ${top.id} (Bray-Curtis = ${fmt(top.dist,4)})`:`Perfil combinado de ${matchN} amostras: ${match.map(n=>n.id).join(', ')}`}. ${matched} géneros de referência correspondidos.`,'ok');
+}
+
+// Capa do PDF — preenche a lista de metadados-chave
+function renderCover(r, matchDesc){
+  const d=new Date(r.generated_at);
+  const rows=[
+    ['Amostra', r.sample.label],
+    r.sample.metadata.regiao ? ['Região / DOC', r.sample.metadata.regiao] : null,
+    r.sample.metadata.casta ? ['Casta(s)', r.sample.metadata.casta] : null,
+    ['Géneros detetados', String(r.detection.genera_detected)],
+    ['Correspondência', matchDesc],
+    ['Coleção de referência', `${r.collection_size} amostras de solo de vinha`],
+    ['Data do relatório', d.toLocaleDateString('pt-PT')],
+  ].filter(Boolean);
+  document.getElementById('cover-meta').innerHTML=
+    rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+}
+
+// Resumo executivo do PDF
+function renderExecSummary(r){
+  const pct=Math.round(r.diversity.percentile*100);
+  const env=r.environmental_optima;
+  const lead = r.sample.metadata.nome
+    ? `Perfil funcional inferido para a parcela <b>${esc(r.sample.metadata.nome)}</b>.`
+    : `Perfil funcional inferido para a amostra analisada.`;
+  document.getElementById('exec-summary').innerHTML=`
+    <p class="exec-lead">${lead}</p>
+    <p>Foram detetados <b>${r.detection.genera_detected} géneros</b>
+       (${r.detection.genera_matched_reference} correspondidos na coleção de referência de
+       ${r.collection_size} amostras de solo de vinha). A diversidade da comunidade é
+       <b>${r.diversity.level.toLowerCase()}</b> (Shannon ${fmt(r.diversity.shannon,2)}, percentil ${pct}º da coleção).</p>
+    <p>O perfil funcional foi inferido por proximidade composicional (Bray-Curtis) a
+       ${r.match.combined===1?'1 amostra':`${r.match.combined} amostras`} de referência.
+       Foram identificados <b>${r.functional_indicators.above_5pct} indicadores funcionais</b>
+       presentes em mais de 5% da comunidade. Ótimos ambientais inferidos:
+       pH <b>${env.ph.label.toLowerCase()}</b>, temperatura <b>${env.temp.label.toLowerCase()}</b>,
+       salinidade <b>${env.sal.label.toLowerCase()}</b>.</p>
+    <p style="color:#5f6775;font-size:11.5px">${esc(r.disclaimer)}</p>`;
+}
+
+// Export do relatório em JSON estruturado (client-side, sem backend)
+function exportReportJSON(){
+  if(!lastReport){ return; }
+  const safe=(lastReport.sample.metadata.nome||lastReport.sample.label||'amostra')
+    .toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+  const date=new Date(lastReport.generated_at).toISOString().slice(0,10);
+  const blob=new Blob([JSON.stringify(lastReport,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`agrobiome_${safe||'amostra'}_${date}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
 }
 
 document.getElementById('file-input').addEventListener('change',()=>{
@@ -933,7 +1236,7 @@ document.getElementById('analyze-btn').addEventListener('click',async()=>{
 document.getElementById('example-btn').addEventListener('click',async()=>{
   const btn=document.getElementById('example-btn'); btn.disabled=true;
   try {
-    const text=await fetch('data/example_bracken.txt').then(r=>{ if(!r.ok) throw new Error('exemplo não encontrado'); return r.text(); });
+    const text=await fetch('data/example_bracken.txt?t='+Date.now()).then(r=>{ if(!r.ok) throw new Error('exemplo não encontrado'); return r.text(); });
     await analyzeFromText(text, {isExample:true, label:'Amostra de exemplo'});
   } catch(e){ setStatus('Erro: '+e.message,'error'); }
   finally { btn.disabled=false; }

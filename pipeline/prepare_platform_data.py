@@ -407,6 +407,8 @@ def build_group_scores():
         next(reader)  # skip header
         for row in reader:
             sid = sample_prefix(row[0])
+            if sid not in active_samples():   # ignora linhas obsoletas (amostra removida a montante)
+                continue
             samples.append(sid)
             for gid, idxs in group_cols.items():
                 if idxs:

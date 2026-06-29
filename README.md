@@ -31,7 +31,7 @@ inferido", não função medida).
 │  ├─ especificacao_camada_interpretativa.md
 │  ├─ classificacao_tracos.csv     (delimitador ';')
 │  ├─ tracos_por_grupo.csv         (delimitador ',')
-│  └─ memoria_descritiva_plataforma.docx   (evidência; gerada com pandoc)
+│  └─ memoria_descritiva_plataforma.pdf    (evidência; gerada com pandoc)
 └─ archive/              Versões antigas e artefactos de teste (não publicado)
 ```
 
@@ -67,7 +67,8 @@ número mostrado na plataforma, consulta esse ficheiro.
 
 ### Correr
 
-Requer Python 3.10+ com `numpy`, `pandas`, `scipy`.
+Requer Python 3.10+ com `numpy`, `pandas`, `scipy` (ver `requirements.txt`:
+`pip install -r requirements.txt`).
 
 **Atalho:** `./pipeline/regenerate.sh` corre toda a cadeia abaixo de uma vez (e
 trata da consolidação da `community_matrix`). Usa `--no-batch` para saltar a
@@ -102,6 +103,12 @@ Página única sem servidor. Servir localmente:
 cd app && python -m http.server 8000   # abrir http://localhost:8000
 ```
 
+Fluxo: carregar relatório Bracken → (opcional) preencher **metadados agronómicos**
+da parcela → analisar. O relatório pode ser exportado em **PDF institucional**
+(capa com identificação e financiamento PRR, resumo executivo, metodologia e
+limitações) e em **JSON estruturado** (metadados + resultados + ressalvas), ambos
+gerados no browser, sem backend.
+
 **URL publicado:** _(placeholder — a definir; publicável em GitHub Pages /
 Netlify a partir de `app/`)_.
 
@@ -123,3 +130,30 @@ para escalas maiores, ver "Escalabilidade" no `CLAUDE.md`.
   absolutos), com framing "potencial inferido" e não-prescritivo. Exceção: grupo
   11 (ótimos ambientais) — pH e temperatura em escala absoluta; salinidade em
   régua relativa mas mostrando o valor absoluto (% NaCl).
+
+## Estado do repositório
+
+Este repositório contém a **aplicação estática** (`app/`) e os scripts do
+pipeline (`pipeline/`). Os **dados derivados** servidos pela app vivem em
+`app/data/*.json`; os intermédios pesados em `data/derived/` (matrizes,
+distâncias, modelo PCoA) são **gerados** pelo pipeline e não versionados (apenas
+`.gitkeep`). Os **dados raw** de sequenciação (`data/raw/samples/`) e a base
+local de traços (`ncbi_genus_summary.jsonl`, ~105 MB) **não** são incluídos por
+dimensão/licença; ficam arquivados no Dossier Técnico do Projeto.
+
+O registo `data/sample_registry.tsv` é histórico e **acumula** todas as
+accessions já vistas (números estáveis que nunca são reciclados), pelo que tem
+**mais entradas** do que as amostras ativas servidas na app — estas são apenas a
+coleção atual, listada em `data/derived/active_samples.tsv`.
+
+## Reprodutibilidade
+
+Para regenerar a plataforma a partir dos dados raw são necessários:
+
+- relatórios Bracken em `data/raw/samples/` (`*.report_bracken.txt`);
+- a base de traços `data/raw/ncbi_genus_summary.jsonl`;
+- Python 3.10+ e as dependências de `requirements.txt`;
+- correr `./pipeline/regenerate.sh` (cadeia completa) — ou os passos manuais
+  acima em "Correr".
+
+O `CHANGELOG.md` regista a versão do entregável.

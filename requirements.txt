@@ -1,0 +1,5 @@
+# Pipeline AgroBiome — dependências Python (3.10+)
+# Validado com as versões abaixo; floors conservadores.
+numpy>=1.26
+pandas>=2.0
+scipy>=1.11
